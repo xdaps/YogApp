@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YogApp - Yogyakarta Istimewa</title>
+  <meta name="description" content="Temukan Rekomendasi Hotel & Restoran Terbaik di Yogyakarta" />
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root{
+      --ink:#0f172a; --muted:#64748b; --bd:#e5e7eb;
+      --g1:#22c55e; --g2:#06b6d4; --radius:22px;
+
+      --bg-landmark: url("https://images.unsplash.com/photo-1555217851-6141535bd77e?auto=format&fit=crop&w=1920&q=80"); 
+      --bg-hotel:    url("https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=80"); 
+      --bg-resto:    url("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80"); 
+      --bg-url: var(--bg-landmark);
+
+      --card-img: url("");
+      --body-bg-img: url("https://i.pinimg.com/1200x/f1/34/2f/f1342f1e4abbd1715c1665b9c907ca89.jpg");
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+
+    body{
+      font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+      min-height:100svh; display:flex; align-items:center; justify-content:center;
+      padding:16px; color:var(--ink); position:relative; overflow-x:hidden;
+      background: var(--body-bg-img) no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .bg, .overlay{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    .bg{
+      background: var(--bg-url) no-repeat center center fixed;
+      background-size: cover;
+      transition: background-image .25s ease;
+    }
+    .overlay{
+      background:
+        linear-gradient(0deg, rgba(0,0,0,.25), rgba(0,0,0,.25));
+      opacity:.20;
+    }
+
+    /* ===== LOGO POJOK KANAN ===== */
+    .logo-top{
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      width: 250px;
+      height: auto;
+      z-index: 20;
+      opacity: 0.95;
+      border-radius: 12px;   /* sudut melengkung */
+      background: #ffffff;      /* opsional: kasih latar belakang putih */
+      padding: 4px;          /* opsional: kasih ruang biar nggak nempel */
+    }
+    @media(max-width:600px){
+      .logo-top{ width: 90px; top: 12px; right: 12px; }
+    }
+
+    /* ===== KARTU KONTEN ===== */
+    .card{
+      width:100%; max-width:760px; position:relative; z-index:1; text-align:center;
+      border:1px solid transparent; border-radius:var(--radius);
+      background: var(--card-img) no-repeat center center;
+      background-size: cover;
+      box-shadow:0 20px 50px rgba(0,0,0,.28);
+      padding:30px 26px; animation:fadeIn .6s ease both;
+      color:#fff;
+    }
+
+    .brand, .sub, h1, .promo{ text-shadow: 0 2px 6px rgba(0,0,0,.6) }
+    .brand{ font-weight:800; font-size:clamp(1.05rem,1vw + .8rem,1.25rem); color:#fff }
+    .sub{ margin-top:4px; margin-bottom:16px; font-size:.96rem; color:#eee }
+    h1{ font-size:clamp(1.25rem,1.2vw + 1rem,1.6rem); margin:8px 0 16px }
+
+    .tabs{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin:14px 0 12px }
+
+    .btn{
+      --btn-bg:rgba(255,255,255,.9);
+      position:relative; overflow:hidden; display:inline-block; text-decoration:none; text-align:center;
+      padding:14px 22px; border-radius:999px; font-weight:800; outline:none;
+      border:1px solid rgba(226,232,240,.9); background:var(--btn-bg); color:#0a1a2a;
+      box-shadow:0 8px 20px rgba(15,23,42,.12);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .btn:hover{
+      transform: translateY(-3px) scale(1.015);
+      box-shadow:0 14px 28px rgba(15,23,42,.20);
+      background:linear-gradient(135deg,var(--g1),var(--g2));
+      color:#fff; border-color:transparent;
+    }
+    .btn::before{
+      content:""; position:absolute; inset:0; transform:translateX(-120%);
+      background:linear-gradient(110deg,transparent 0 35%,rgba(255,255,255,.35) 50%,transparent 65% 100%);
+      transition:transform .6s ease;
+    }
+    .btn:hover::before{ transform:translateX(120%) }
+
+    .promo{
+      margin:12px auto 0; max-width:620px; line-height:1.65; font-size:1rem;
+    }
+
+    @keyframes fadeIn{ from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none} }
+
+    @media (prefers-color-scheme: dark){
+      :root{ --ink:#e5e7eb; --muted:#94a3b8 }
+      .overlay{ opacity:.16; filter:grayscale(100%) brightness(140%) }
+      .card{ color:#fff }
+    }
+
+    @media (max-width:520px){
+      .card{ padding:24px 18px; border-radius:18px }
+      .tabs{ gap:10px }
+      .btn{ width:100%; padding:13px 16px }
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo di pojok kanan atas -->
+  <img src="logoo.png" alt="BPJS Logo" class="logo-top" />
+
+  <!-- Layer background -->
+  <div class="bg" aria-hidden="true"></div>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <main class="card" aria-label="Beranda Pencarian">
+    <header>
+      <div class="brand">BPJS Ketenagakerjaan</div>
+      <p class="sub">Kantor Cabang Yogyakarta</p>
+    </header>
+
+    <h1>Pencarian Hotel & Restoran Jogja</h1>
+
+    <nav class="tabs" aria-label="Kategori">
+      <a class="btn" id="btn-hotel" href="hotel.html">🏨&nbsp; Cari Hotel</a>
+      <a class="btn" id="btn-resto" href="pilihan.html">🍽️&nbsp; Cari Restoran</a>
+    </nav>
+
+    <p class="promo">
+      Temukan penginapan nyaman dan kuliner khas Jogja dalam satu klik.
+      Pilih <strong>Hotel</strong> untuk tempat istirahat terbaik, atau <strong>Restoran</strong> untuk wisata rasa tak terlupakan!
+    </p>
+  </main>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+      const bg = document.querySelector('.bg');
+      const btnHotel = document.getElementById('btn-hotel');
+      const btnResto = document.getElementById('btn-resto');
+
+      const setBG = (varName) => {
+        root.style.setProperty('--bg-url', `var(${varName})`);
+        bg.style.backgroundImage = getComputedStyle(root).getPropertyValue(varName);
+      };
+
+      const reset = () => setBG('--bg-landmark');
+      reset();
+
+      btnHotel.addEventListener('mouseenter', () => setBG('--bg-hotel'));
+      btnHotel.addEventListener('focus',     () => setBG('--bg-hotel'));
+      btnResto.addEventListener('mouseenter',() => setBG('--bg-resto'));
+      btnResto.addEventListener('focus',     () => setBG('--bg-resto'));
+
+      btnHotel.addEventListener('mouseleave', reset);
+      btnHotel.addEventListener('blur',       reset);
+      btnResto.addEventListener('mouseleave', reset);
+      btnResto.addEventListener('blur',       reset);
+    })();
+  </script>
+</body>
+</html>

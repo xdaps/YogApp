@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YogApp - Yogyakarta Istimewa</title>
+    <meta name="description" content="Temukan Restoran Modern & Tradisional di Yogyakarta" />
+    <style>
+        
+        /* (SEMUA STYLE CSS ASLI ANDA TETAP SAMA DI SINI) */
+        :root{
+            --ink:#0f172a;
+            --bd:#e5e7eb;
+            --radius:16px;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family:"Segoe UI", Arial, sans-serif;
+            display:flex; align-items:center; justify-content:center;
+            padding:16px;
+            background: 
+                url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1350&q=80');
+            background-size:cover;
+            background-position:center;
+            color:#000000;
+        }
+        body {
+  overflow-y: auto;
+  height: auto;
+}
+
+.container {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.result-list {
+  max-height: 80vh;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+        body::before{
+            content:"";
+            position:absolute; inset:0;
+            background: rgba(0,0,0,0.45);
+            z-index:0;
+        }
+        .card{
+            position:relative;
+            z-index:1;
+            background:#ffffffee;
+            color:var(--ink);
+            padding:24px;
+            border-radius:var(--radius);
+            box-shadow:0 10px 30px rgba(0,0,0,.25);
+            text-align:center;
+            max-width:720px; width:100%;
+        }
+        .brand__name{
+            font-weight:800;
+            font-size:1.2rem;
+            margin-bottom:4px;
+        }
+        .sub{ font-size:.9rem; color:#475569; margin:0 0 14px }
+        h1{
+            font-size:1.3rem;
+            margin:0 0 16px;
+            color:var(--ink);
+        }
+        .tabs{
+            display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
+            margin-bottom:12px;
+        }
+        .tabs a{
+            display:inline-block;
+            padding:12px 20px;
+            border-radius:999px;
+            text-decoration:none;
+            font-weight:700;
+            background:#fff;
+            color:#0a1a2a;
+            border:1px solid var(--bd);
+            box-shadow:0 6px 14px rgba(15,23,42,.1);
+            transition:transform .12s ease, box-shadow .12s ease;
+        }
+        .tabs a:hover{ transform:translateY(-2px); box-shadow:0 10px 20px rgba(15,23,42,.16) }
+        .tabs a[data-category="Modern"]::before{content:"🍴 "; }
+        .tabs a[data-category="Tradisional"]::before{content:"🥢 "; }
+        .promo{
+            font-size:1rem;
+            line-height:1.55;
+            max-width:560px;
+            margin:0 auto;
+            color:#0c1c2e;
+        }
+        @media(max-width:480px){
+            h1{font-size:1.1rem}
+            .tabs a{width:100%; text-align:center}
+        }
+
+        .logo-top{
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            width: 250px;
+            height: auto;
+            z-index: 20;
+            opacity: 0.95;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 4px;
+        }
+        @media(max-width:600px){
+            .logo-top{ width: 90px; top: 12px; right: 12px; }
+        }
+
+        /* search bar */
+        /* search bar */
+.search-bar{
+    position: sticky; /* Kunci posisi */
+    top: 0;          /* Kunci di paling atas */
+    z-index: 10;     /* Pastikan di atas hasil */
+    /*background: #ffffffee; /* Beri background agar tidak tembus pandang */
+    /* ... properti lain ... */
+}
+        .search-bar input{
+            flex:1;
+            max-width: 300px;
+            padding: 10px 14px;
+            border:1px solid var(--bd);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+        }
+        .search-bar button{
+            padding: 10px 18px;
+            border:none;
+            border-radius: var(--radius);
+            background:#0f172a;
+            color:#fff;
+            font-weight:600;
+            cursor:pointer;
+        }
+        .search-bar button:hover{ background:#1e293b; }
+
+        /* hasil pencarian */
+        #searchResults{
+            margin-top:20px;
+            text-align:left;
+        }
+        #searchResults h2 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: var(--ink); /* Tambahkan warna agar terlihat */
+        }
+        #searchResults ul{
+            list-style:none;
+            padding:0;
+        }
+        #searchResults li{
+            background:#f3f4f6;
+            margin-bottom:8px;
+            padding:10px 14px;
+            border-radius: var(--radius);
+            box-shadow:0 2px 6px rgba(0,0,0,.1);
+            line-height: 1.4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #searchResults li span{
+            font-weight: 600;
+        }
+        #searchResults li a{
+            text-decoration: none;
+            color: #1a73e8; /* Warna biru link */
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #e6f7ff;
+            border: 1px solid #b3e5fc;
+        }
+        #searchResults li a:hover{
+            background: #cce7ff;
+        }
+        
+    </style>
+</head>
+<body>
+    <a href="index.html">
+  <img src="logoo.png" alt="Logo BPJS" class="logo-top" width="120" style="cursor:pointer;">
+</a>
+
+    <section class="card">
+        <div class="brand__name">Pencarian Restoran Jogja</div>
+        <p class="sub">Kuliner Modern & Tradisional</p>
+
+        <form class="search-bar" id="searchForm">
+            <input type="text" id="searchInput" placeholder="Cari restoran atau makanan..." />
+            <button type="submit">Cari</button>
+        </form>
+
+        <div id="searchResults"></div>
+
+        <h1>Pilih Kategori Restoran</h1>
+
+        <nav class="tabs" aria-label="Kategori">
+            <a href="restoranmod.html" data-category="Modern">Restoran Modern</a>
+            <a href="restorantra.php" data-category="Tradisional">Restoran Tradisional</a>
+        </nav>
+
+        <p class="promo">
+            Jelajahi wisata kuliner Jogja yang tak ada habisnya. Dari restoran modern trendi dengan menu kekinian, hingga restoran tradisional yang setia menjaga resep warisan budaya.  
+            Setiap kunjungan membawa Anda pada pengalaman kuliner yang istimewa.
+        </p>
+    </section>
+
+<script>
+    // =========================================================================
+    // 1. DATA RESTORAN
+    // Catatan: Data yang ada di sini hanya untuk PENCARIAN CEPAT. 
+    // Data lengkap (seperti cp, img) HANYA ada di halaman detail (restoranmod/tra.html).
+    // =========================================================================
+
+const DATA_MODERN = [
+  {n:"Mediterranea Restaurant by Kamil", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:9402, cp:"0274371052", img:"https://blue.kumparan.com/image/upload/fl_progressive,fl_lossy,c_fill,f_auto,q_auto:best,w_640/v1634025439/01hnps3b5jzjda4e7k70cy9jzr.jpg"},
+  {n:"Big Belly Steak", area:"DALAM KOTA", rate:4.9, tags:["modern"], pop:117, cp:"081328822885", img:"https://lovaholiday.com/wp-content/uploads/2025/03/steak-jogja-Bellywise-Jogja-kuliner-.webp"},
+  {n:"Roka Ramen", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:8141, cp:"085173038044", img:"https://assets-a1.kompasiana.com/items/album/2024/06/23/whatsapp-image-2024-06-23-at-19-44-43-9ec52ebe-6678269d34777c207b70f812.jpg?t=o&v=770"},
+  {n:"Bunaaca Doughnut & Gelato Prawirotaman", area:"DALAM KOTA", rate:4.9, tags:["modern"], pop:117, cp:"085880003532", img:"https://i.pinimg.com/736x/7f/a4/9d/7fa49d52432a00ac500bba46f58fce70.jpg"},
+  {n:"Tempo Gelato Prawirotaman", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:23521, cp:"02744291031", img:"https://static.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/p2/222/2025/02/08/4-3311071041.jpg"},
+  {n:"Sixsenses Kitchen", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:2700, cp:"081327777555", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqEoXhEDSoggdmYlLU38DlIyyBnYl-P3Ho_4gZ61lBf6yqgKVsWkxwXKJmIFng1ufvlX8IHKWD17EMm9wS7QbA0xOtGISXBCx8IVXaqgXkfdS4TwgB0mW1d3vaOVEOTWF_TXnMQ=s680-w680-h510"},
+  {n:"Nanamia Pizzeria Tirtodipuran", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:11841, cp:"0274379752", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/7b42eb33-9dbe-490a-929b-cf0a51a21445_Go-Biz_20230518_210814.jpeg?auto=format"},
+  {n:"Honje Restaurant", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:174, cp:"08122501007", img:"https://asset-2.tribunnews.com/jogja/foto/bank/images/kuliner-all-you-can-eat-bernama-friyay.jpg"},
+  {n:"Canting Restaurant", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:2759, cp:"0274450150", img:"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj-EpjS3c2f5ngd75MuCUgSrnXl6nuwCsDezCAsTvYgOcRjQ8QmOMczzt7DpQ1rikwPEaTbVipdJPXlez7yYHmnz8CzDj_nUkRiUoLF87ZgV9ui3jCNPzRIhTeuSHK7ikVpaRIFyuIKZHlj/w1200-h630-p-k-no-nu/IMG_0308.jpg"},
+  {n:"Sasanti Restaurant", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:1432, cp:"0274412345", img:"https://lh3.googleusercontent.com/p/AF1QipMppe7UQKDf2o_kWzjpFZtFVwfxIj4eD8E74HGx=s680-w680-h510"},
+  {n:"Silol Kopi & Eatery", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:9100, cp:"082299799000", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/3051f499-3a02-4de5-9ec1-1bf088166443_Go-Biz_20210111_215406.jpeg?auto=format"},
+
+  {n:"Zabunch Breakfast and Burger", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:1299, cp:"082223237971", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npbQWsedF9BtbbCNIq_aZC9rQvgX9HWWRHHmPJPCSYRvURyYVA6Gztj5IL6fPROizGHdrKGrJGXAzMM12z_7sPm0g16mkW-ne_FWo-B58G3eVgtdylmg-3fem0NoKRggKx43Wv-ug=s680-w680-h510"},
+  {n:"STAIRS by Seken Living", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:564, cp:"085215655565", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqx0OuLqtUeYnZdzgO6pvy1mqVhP3P1KgA-a7cmuNl3q19WYvfBh4YujXiJ9wT0IjIB19ywgg5HzFFVm-fFcIwLIpv9r23Kk8kv0513IGo_o4lpUN7VfP_Je98IPoMWyPv5DnJqU1gh6lA=s680-w680-h510"},
+  {n:"A&M Co. Yogyakarta", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:3449, cp:"082260600903", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npsc_HC1C8VzGC-x7HvdxpoHelicB0HvK1XYk9wrI9ja5ulRJ4M3MwqI8jD2MbQE3neTQ5W2uQVyjzlJwpiiY2nk_RuZ5crvtnj5UDuRkKCykUDMOY1FLAHl-MH6JJ1s3CsUsXZow=s680-w680-h510"},
+  {n:"Sekar Pizza Tirtodipuran", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:1605, cp:"027442871412", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrF1Wy-PQQxw0ANa-o10-6j2GaU0V0GCrQEyDOcziFXpbES0XQjmwcZqBXzOzUQ5nTj5ue1y4K2YD5IA6Bdv3ZerqEjm59n50q_B53e7M5sV-5Y5vgQ8ygDBiTTLbMt2t5Y9Qc=s680-w680-h510"},
+  {n:"Tujuan", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:1289, cp:"0274417577", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noFFZqBdz7JsnxpoU-BGo4RTqEioUlQQncGPCOKHZRBvwLXP2elTHvHXkaou5gNKeKqJt0gllFU1BUg5rrAK4_kQJvlq8_lASCYAECcp8XbYWUfgHREyn9MPnafkqK20DxQBMg=s680-w680-h510"},
+  {n:"Mamahké Jogja", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:2371, cp:"08118063080", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4np0YmIy9B7UKEYbYm6D1L4KNs4ddS9Z0hLDvSgcmuQP0M95Vx2VKBA4q1BFHCMsLnSLpGGSHIPYCxs86M5bbOe4ajXVs7mrZHT_Avwpjhf9ZZ20bHy3dw-jqbY8yEuj6Au7l2OQ5w=s680-w680-h510"},
+  {n:"Kebon Ndalem Coffee & Eatery", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:4922, cp:"088233676888", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nroeoJNx-uqWQVy_j1dJqlRPvNTWGIPKRJKLY0M7LS5jFir41SZz5KYxf7liPVuN6cN5igyhB84kdIXwFE4V2hvb8ctCmtxcFZTKPaSLFM6r_cMO9T4O0FcxMp4IgdgWqRoeNG9=s680-w680-h510"},
+  {n:"Banyu Mili Resto", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:6862, cp:"0274545143", img:"https://lh3.googleusercontent.com/p/AF1QipNj6RXUwRCpiE7XpHn7blnOhHLUH2VZ1yt1yF8c=s680-w680-h510"},
+  {n:"Walter Coffee and Eatery", area:"DALAM KOTA", rate:4.9, tags:["modern"], pop:1866, cp:"081999983883", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq99Gmepm0qqjlkgOVEBLyhKSznVUsMKMx51-_ntXXf6hb0DBUc1eavN8_67gxyo1dUkVcWwXl0as5Bv5DMpcz-ZfCEDE-0DeleNtZdjR8uOGJdNvXo2gZ3yeu08N1wGrYW7J6JuB0yBXA=s680-w680-h510"},
+  {n:"Tjemara Noodle Bar - Sagan", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:1571, cp:"0895365032800", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nobn8kfc9ipHya_Dt9icUwFm-6_vCc0UMobMMtRQGHhs7sHkejKqCDZKi53NH6yI6yXJqD5fJnMZRFhT05IJ2KDHC9hIf-UPKI_GjSJo1DInGlv-LnhLykyFFCmUQdY7SwjUAfqJw=s680-w680-h510"},
+  {n:"AMCO Sushi", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:1327, cp:"08112658083", img:"https://lh3.googleusercontent.com/p/AF1QipPNLxdGTWYYoLBJwz-GGIZ3as68wwZuBIM_rVVs=s680-w680-h510"},
+  {n:"COTO MAKASSAR LAO MANRE", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:653, cp:"085800491272", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrzQsed40Dpy6E7Ub88s5r_E5CN2MaPsWTdi8RoOTlnHFu8GeU8F_-WTRrCTarResK5xHwt_mkiKqpetDJzFpNXuyckZd6GtEaR5J2XL2jju9PiJuAKNsfAfrjB-Rfk-bKC-a4heg=s680-w680-h510"},
+  {n:"Tio Ciu Chinese Food Bang Sinyo", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:4693, cp:"082322506887", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrhFhcoIOuOAUEXU1jUhbcGkJ1RcugCJvzt7U1pz_upHWu9LwRXG7_UcsBpIFBFWX1iUazn6S5eBpZRHUnBui3Di8gyd4s0WKDW2C7oqX1wPzG8zyHtecbAtnJ0g_qCkiFK9Szem4lPGTA=s680-w680-h510"},
+  {n:"Madam Tan Indonesian Food", area:"DALAM KOTA", rate:4.3, tags:["modern"], pop:2034, cp:"0274520729", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqi_MEonVTQhNHOMt04770DUC2bSo8RyPXARZUpVXprwrtyq3bk_aOnqarfarshS9_d-jK03qyjTuGgSWSXndFcHYJgGpy2wpgHo9tZsYCl2ZSa96cUFq1oLv_V39Zs6D0Lh7pTrROec_c=s680-w680-h510"},
+  {n:"Phuket Resto", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:1721, cp:"085716277150", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrS72C3zrc--xK8JhU46e7pFVHxzJxqacpG2D0cYzSZBxyiuziY4GcFYI4f2HbXIYeSsd8MqabERQePy6S9gAhQwYEpFh0kYwXR-8k-A-tqdcuhDydXa7P69TjYJ1NX90HJci7C6tTYyEuY=s680-w680-h510"},
+  {n:"DIL RANI RESTAURANT, India, Western, Asian Cuisine", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:913, cp:"082325617878", img:"https://lh3.googleusercontent.com/p/AF1QipO5Y3jEwwsA9A5rQZUnrj10VhfglzRM9te8JA5b=s680-w680-h510"},
+  {n:"Legend Coffee", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:10822, cp:"087705370974", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npLFkJ6ZYKBL_dfaM8EtRqgK9D9sjuIf3a_KIJCizoNVADPEDb8sPWg1FuatukOYuKiuyQPXCNEhhF7x4NaCDJlDkLCFRH8fJfbGtsOiMzheoHWyeDtSwtKmkLAFtrtpJCT638=s680-w680-h510"},
+  {n:"Moerni 78", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:4169, cp:"0274515947", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npb0nehVKVqMMIi-Nx2OxDGO9fmuCA_L9FKeOOntS35Xo-FUJSNDTQphQvz8kfOxgacHWlZQR_2AS6WL4sdAxpdpL0dJlmNprx-ITUqaX8PgS8U4EJpoJved4ooBf0P3ll_Jn5O5qxlf3g=s680-w680-h510"},
+  {n:"Kalluna Cafe & Restaurant", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:5927, cp:"082136939530", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq9BHwpv3tlu3yfKihybsNF9UDLucmbaAEQOcil1xQtY6BPqxGIfoNz2BiJrsb7kkgENhrGubiAo--plZ_GgZAWa7uVUDyQ-5B1VdtKeTVj1jBUH8DK9bzzDNpQpLTg6PUz-RJSJtCnSJze=s680-w680-h510"},
+  {n:"Omah Dhuwur Dining & Coffee", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:2112, cp:"0274374952", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr7nR6jkOAhMMOcUrq_pfuyw77KZaYIL7ZUFQjCR3UeVzCfPYuqmgRr_48UKEaBd3BQPeYlUJojC0SyC1gBuEC1ymvlKmk3Sp2Plwn_UUdj6DD4_CAM41OBLN1QqAXXr_OqrzkYWQ=s680-w680-h510"},
+
+  {n:"ESCO RESTAURANT & NO.27 COFFEE", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:1524, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npafMblMP2i62dTuGMiMA35DAMcTGy90kAwA1kruYVmuHv0KY8BvpipKwQlBMOPk_iJyL1cTr6T2CrA_vFwJeWwCyV4b5TLt8Pb3Av5a30rQzNC-RlD9ydZvEJ_Xu_hah-g=s680-w680-h510"},
+  {n:"Serodja Prawirotaman", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:443, cp:"089527272024", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqFUuKcOc9dVs5P80W9vP490a7FUBQ2NNyQ6zWSvssBc4rlNV1TfpZThcBmScPmhKDNd3vXve7kiJwXEN1OLUQkmyyyvhPY2yKTo0RrkFZYKHPG3W3hlJA0MVDFy8Y8EC7LRibQGlIuUv-e=s680-w680-h510"},
+  {n:"BUKA MEJA Cemorojajar", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:568, cp:"081393609087", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrmVPJhyUUPwIl26HnAnXM95uMkGc5XYhm3Ss-E7AeMOY36G7Xm7KuvJxG_P8T48EOvAnUo0ynwSl-lanp3i0Hx4aYnCnEKs6qCEjopANPqmW07mJB07Wkya2EiWKRQFgmMrYb3J6tHkXVZ=s680-w680-h510"},
+  {n:"Soto Betawie Bang Nur", area:"DALAM KOTA", rate:4.9, tags:["modern"], pop:1478, cp:"081348010203", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noQMErDL34XnA1pojob1ocbFwMyWJtmGrNgFEYu7MROvJDM3Rsb9VYFIucCpO0ZSJ_vzBV9qFgpwxks9vIM_vq4krvFIVF-VV1Uow4pVUSI6x8teV8Ir7IPHc_vREN3seVbnLnb=s680-w680-h510"},
+  {n:"Secret Garden Coffee and Chocolate", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:4075, cp:"082220283830", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqeS8HQJr8C5KLHY8FONE8tH_eswSlfpSNwUO1LjsIcToP4m6aERa21mrV_t6qBBF7nUqwF5VEVu2KGtzOvY1OmgnEbzOLKjZ2WQCm_KcwbSfqTRHzu5wI3KU8CWH89arfzpaWelw=s680-w680-h510"},
+  {n:"Kata Kita All Day Dining", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:1644, cp:"087897898789", img:"https://lh3.googleusercontent.com/p/AF1QipNiYMGP8r9uh7hlLdo1SDo8YhXdDehR-A6R4IDf=s680-w680-h510"},
+  {n:"Downtown Diner", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:1110, cp:"085173038828", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrSLwN4qE1MaXetGQv8OVCxBwjSxCsNPcYVg-DBPt-Qm9g6tPDogmi42PFPOnhC8x6RxFT3INm_LelJ2tPP6MO4Q-NiLrEFRI4f0iVh-p2aY9SISby2aZBuOlUOf7j5UkP2af1D=s680-w680-h510"},
+  {n:"Gadjah Wong Restaurant", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:883, cp:"0274588294", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqLyc1qE_nH15qqxPNTwdXeCroxIziYgKHkdib1-QxOZ9xfR3I77I9HdVKNqvilU4we-NhbON3ijy_B2TzdD9PABpP-xQHKs-d8iqIiKR-ayqKgBRRXj9wuXySx8TnEr6LUQWNv=s680-w680-h510"},
+  {n:"Kenes Kopitiam & Bakery Gejayan (Chinese Restaurant & Pusat Oleh-Oleh Yogyakarta)", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:1080, cp:"085712317171", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noxdVVQ2x1DcdMjaFpV8ECTsHRg03XA14Br0tQFLt-7mdHf6lPrLRNPiFcVGtn62Fj5T-9t67HcFO3iQD7PgQHxtr-8WUNzYZgiELvTzoxY9jYS_PmtZXDn6lcXOPs2tVY7blOI=s680-w680-h510"},
+  {n:"Thyme Beef Bar & Eatery", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:2273, cp:"02742806953", img:"https://lh3.googleusercontent.com/p/AF1QipMZ0h69we9WaIna1VZduVqrIFwxYMBL-g7eNO-c=s680-w680-h510"},
+  {n:"Toean Watiman", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:7049, cp:"081380812700", img:"https://lh3.googleusercontent.com/p/AF1QipP_387usvEfmqrgEC8qKkgqLSDhzwbG__rchZQF=s680-w680-h510"},
+  {n:"Isvara Kitchen & Coffee", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:1279, cp:"(1) 081132046444 (2) 087733445562", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npFttZKDeC88QhMwMXYEhwA-ADtlsjTxhYk9S6xTq7M6dNWBEIZoxl9GSuKVOO6RMF8x5of8ycHH2DH989s5axQefOMW2wT0N_C-XWoY3qWT5bbOjBaDhUvj46Vns2n7-vjP-Oecw=s680-w680-h510"},
+  {n:"Lalawuh Sunda", area:"DALAM KOTA", rate:4.2, tags:["modern"], pop:3495, cp:"02745018852", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrVCpNC0bl7KsKIAhVUCAw-uRJiw_j3u0H69by3sEXILbLMpGza_9MaQwRObiIB930DOpFS0X9dzQaGnEI7wq7gDZ9h1M1vUyT6_-CCxx0QwvjjWbq2J0iR-lxqjVvMhirHtqLG2Q=s680-w680-h510"},
+  {n:"Le Margaux Brasserie", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:68, cp:"085179700700", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrpQCcr8xAWL1VsY_xcEzs2ujQyxbY6VguQMtrwkLSXPvjmHwxuVHk72l4etIaEnp9Zu4lbC053gEYuka6lyR9w81Ur3hIA4dCDqXth5XftZo3mE3vb32LNBe45SUVRDQ5h7r3m=s680-w680-h510"},
+  {n:"GalaRasa Hidangan Nusantara", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:87, cp:"08567881199", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npGlCDybKoOIwKRC1MLmMYG0kOmVterkWQEfiC1sO10spHercKteE4MUMAT3ywfLFyyNyUfHGZIuwJptQVnfx6ao6chHb5GQTXFpiJmgknwAvaflvYu6B5bfsh6CSRobGU9Ng4H=s680-w680-h510"},
+  {n:"Stylo Cafe & Resto (Jogja)", area:"DALAM KOTA", rate:5.0, tags:["modern"], pop:285, cp:"085117505505", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqiqIg9Ei2R1PmhvF_8miBlBFdkm-SjHzdcNWVnHdSKJ1u6r4CYjXxbVNBNBS0cLd4B3fm33Axsh92Fd51r8dtDODcqTWuVcj5hM6HRdL_4KoCsYS5YsS3CNACmXoW4QtgS5m6x=s680-w680-h510"},
+  {n:"SENJA Coffee Kaliurang", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:1139, cp:"08885855855", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npBTD_FDwxhDrsia67u0tcUcNDE-EVadnjIpjzGWMIU-jmekH3QjaSn_hpPkrKbTJtUc66bdW_lXHEeOgRp_P26BgZY__RVxy8zvfRfFCYUoZxJQ-aNKeOFHs10zcZny4_h_tb-=s680-w680-h510"},
+  {n:"Alra corner", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:511, cp:"08156871350", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqeHf-e67g4CRoHyndyEzXZOsowGlmycR7RqTFtzwda_J3Fm6L0BSeZihHbb_YtebfcsofP0TQCQ1R3IaIHTxPa0gF98aLjbJbWTDouDoLO4lzztN5quKS87od3KQGpkHO8h3I=s680-w680-h510"},
+  {n:"Literica Resto & Cafe", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:473, cp:"085864464496", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrb4655-8Dy2G6CL2w6i223h7XhAUbSGZ5qzpXKcmAdK3iARdDOxPcQicI4czrPy2SaqUyXPp4A8gdrlGirt7AIuNHvbP_v_zAmPQPr3CcLwgW65VKlzcfp9GjPz7kQf1nI7duv=s680-w680-h510"},
+  {n:"City Grill - Eastern Mediterranean Restaurant", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:769, cp:"081328322668", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq-LmfQMF_RH7_o70MjQ5JG9YH4Wg7OP1mz2fFAf2eFw8oby9BUTzaMes2oZDX3LW565pxcZUoThU_VucQzSK4jH_SvF4MM-FHbnWmh9PCug--3ia1POqZdfk8HjuOXjGjacDO3LQ=s680-w680-h510"},
+  {n:"RICY Eatery & Coffee", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:1020, cp:"083824695612", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noSnf_0l6qhxatokGZDQyIqdv14QCBINDUtNaALwQMSQvgFGwn3nZ4jHrKZTPJWw1vrSqW3B8X-2AlGy7SEo_mZwuk-UX8-vltCrOmHJZI-M-vrGhuX1w4ER-pX4OFmz4OmYKk=s680-w680-h510"},
+  {n:"Milk by Artemy", area:"DALAM KOTA", rate:4.6, tags:["modern"], pop:4476, cp:"087834294845", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr2mmowEOCx2xuILSxwpOX1QTuGBwYhalCyP4yiHmEhB7gOaUYqmo4wx0CFS1R8yblxzZuCYuu0puDoVbyQ2TeXqJ18Sv5aYFvZaR0CPRRYyPTuEyCOG3qfVmdQ9dgpz3wj92v_kK3isRHz=w223-h373-n-k-no-nu"},
+  {n:"Backyard Smoke and Buns", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:633, cp:"082137125462", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npKAyILSwNe4VW3p3hHQgjZKeTu3eubPYptFdHcDLvlbXnLTVjNUc5lrCY3CCVy3gF5dTQP96qLsAxo7tCiFiAYG9_8z2LT2L3S_PXOcsE9c86xRbq4R9S3i5nAUQqvFWQIWtlQQ3HNuqSp=s680-w680-h510"},
+  {n:"BellyWise Jogja", area:"DALAM KOTA", rate:4.4, tags:["modern"], pop:844, cp:"087838559934", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqg13uV4ugIXWiHO9DZT1ly8oSJAV9larZN8Fzxt4RPMDtA23q0Ni-04MJclpb7mjra-qcDXW4nqz1TEEaabIEUzKeWws9BqvyQswZ09hWchNKBOpDVZnxfa5wzSxddSUb7BL-TxQG_oEE=s680-w680-h510"},
+  {n:"Ini Kopi Ulon - Sagan, D.I Yogyakarta", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:264, cp:"082268367017", img:"https://aboutcirebon.id/wp-content/uploads/2022/10/Kopi-Ulon-Oktober-2022-12-of-15-scaled.jpg"},
+
+  {n:"Five Seven Coffee & Billiard", area:"DALAM KOTA", rate:4.7, tags:["modern"], pop:351, cp:"085198888957", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrxgs68clV_J4l2a4h8y_Kl-AwumqM9JMNL0q3kGXfjKTUO6VymAagtAW_XUHoKlek_lTk1_cd2skNvUvILir1iSsJ59tGMO5hJvVS8dPefkmmEIgJ2Ta4JrytguqFMJGeSVofGuLz_85Yo=s680-w680-h510"},
+  {n:"UHT (Ultra High Temptation) Cafe", area:"DALAM KOTA", rate:4.2, tags:["modern"], pop:1200, cp:"085727330004", img:"https://lh3.googleusercontent.com/p/AF1QipM5UGpQS05q3QvuetmflpFRk6tVQNfWaQOnu5VO=s680-w680-h510"},
+  {n:"Resto Taman Luku", area:"UTARA", rate:4.3, tags:["modern"], pop:1323, cp:"081243977899", img:"https://i.pinimg.com/564x/79/4b/18/794b187d336251193d2b40ef46d65e41.jpg"},
+  {n:"LaVana Kaliurang", area:"UTARA", rate:4.6, tags:["modern"], pop:2625, cp:"087724428492", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nphTkr7HkS5OM2XFMYbeAYNqZQcpR5uJ82H8EHxFFEldNu2nyHg4zQiCK5qkUkG9Y9_vy9UpVyTCxpJn-5UO4KF-Me643D3Nb46CWPn9bBuHpvT4z4GGQZagxBVdUe7cOzZRnzUjndxaFwq=s680-w680-h510"},
+  {n:"MONTERO Jogja", area:"UTARA", rate:4.9, tags:["modern"], pop:123, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npvd9ANOY1563JiebzMVC66G5AQ-XNI9U1xvMEiZuQJkPthtUT_TFvUtYK0wvwNJVWepYs00UChW_eEWKZeb9DgfVT8FxppWrAKzLJW-4O6L8KJL4iV20VLUwrAgKIqeNIhjwiC8A=s680-w680-h510"},
+  {n:"Moufu by Roka", area:"UTARA", rate:4.9, tags:["modern"], pop:1743, cp:"087718700807", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrci5hzEA19PBiJetTdEBxaQnkVqWRlRSf9pUD7VfF3l4CUqkQJTA9e1XTqr-L5n-YrN_n2FjHtek5jvmQzATxxChu1uUCThO1nJundZGAsoy3mAPj7AWfc3IIARiefCs2sUebLvVBEYAQ=s680-w680-h510"},
+  {n:"Resonansi - Coffee Ramen Burger", area:"UTARA", rate:4.7, tags:["modern"], pop:988, cp:"085642190005", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npUUsUM1CXWU_Dpw-5RS1ESo070ZpepH7l45SJeTWVyyFuskyIRn7Cl8YkOCPoGncOZwjgVMnupZIvPkTWdcx2B-neuUeXCl1XgaWnU9q-wTWA4NTHEsA7sA3oK-aY1W14DHiIT=s680-w680-h510"},
+  {n:"Resto Unagi & Udang Alam Kreo", area:"UTARA", rate:4.8, tags:["modern"], pop:19181, cp:"082160003600", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqQOntkf4RKPZBxrrnqftrGGt6sBvnxnA1J9Hk4dhfElnQNBJxKu6SyBBft5utk0go1udrXDJTaumQEFJuAuh7nIOsr5o0Yi5sEXteMFB0lIui-1mg7D9TkpDlqpXEiRRY7yE8Z=s680-w680-h510"},
+  {n:"Cinema Bakery", area:"UTARA", rate:4.5, tags:["modern"], pop:3668, cp:"08112635068", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrtcLp5o826lJxIp1UrGPO4Qw9Ejevd73LWPqOs9A_8PC-737GdkjMKPeuuYvs4BhT7eA7KocZ0g3uCY4JGCh-C7nKsxl6qobab0Hb0YVT8VHIuxqHukCivl87LXtgxZIKLL6VdTQ=s680-w680-h510"},
+  {n:"Mie Sapi Banteng", area:"UTARA", rate:4.4, tags:["modern"], pop:2704, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqk0MGJBVpaqbmSJZBDh52_fDn9-WXqN0mfRCLKax6OkZrw4TTqtwcg6pYVezGqYplmiQoffYh4eCkx29U4tnOFCioRvF9nuGhuD1NRp4Ec3a8PHRRdxcQa439yaauXWjRFEWNcCg=s680-w680-h510"},
+  {n:"Pikali Pizza Coffee and Kitchen", area:"UTARA", rate:4.8, tags:["modern"], pop:1060, cp:"087839555644", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npLPbFqlpQ1ZFrLTPnQK6M1asNCYNB4bY3g3c5A0O1vzb87z3VbUV98Sk_mlq8JbtnO4NK3ZWh-juTZddIapVd0w5FaU7CZMoHvt0D9go3269uBiSIRVqcHI85IIOSkaEx10avsXQ=s680-w680-h510"},
+  {n:"The Rock Burger", area:"UTARA", rate:4.4, tags:["modern"], pop:2003, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nokuR23Ct1kN58uuXoB2PGxz39a2ewCSkrdxOR-D2WmkGcpOr2naXda-g3mwPcjqF-L-Rafr2nK51UcE_hFBR5zcGiYWcNoin7IqAJadjdxJkOIKZv1AEywAB3KFT6OQ4l_-6T8=s680-w680-h510"},
+  {n:"1009 Social Space - Palagan", area:"UTARA", rate:4.9, tags:["modern"], pop:1817, cp:"081127013869", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqsdgtha8lTdBREU6iQ3oWXpICM_Yod2VQpfPZouq0FF9mVp0Jyhq1eHJTrXEoxjIoHx6Ej4p--Qy-YynEqBl9V_uFx8xsN4P6aMKZJkqap5j_QOfeb8JD0_GQwsdoo8armn-ARi0whCqfn=s680-w680-h510"},
+  {n:"Ropang Village", area:"UTARA", rate:4.7, tags:["modern"], pop:466, cp:"081387871655", img:"https://lh3.googleusercontent.com/p/AF1QipNtcSLML1yi5fTDTm_byq0q3YdSAAIpn1qQpeW-=s680-w680-h510"},
+  {n:"Rubah Coffee", area:"UTARA", rate:4.7, tags:["modern"], pop:58, cp:"081122225171", img:"https://lh3.googleusercontent.com/p/AF1QipMupGXsG8nvWzdgetiNBxGeXJCgGGQhdtN-F8RT=s680-w680-h510"},
+  {n:"MESK LOUNGE Cafe & Eatery", area:"UTARA", rate:4.9, tags:["modern"], pop:103, cp:"087838404254", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npXI7JYDn6EpFDU4VYSkcYluvqQ4lLsKTfjNCcOv-Qp1fA389D4P-vbzYTZUWsCoUFwoDLX58jL51SZjFuwk8H9c40uHkkcqDTQr6dc5IJUuBb_xvoJ4M_KRLcI_P7kIPk-o1eU=s680-w680-h510"},
+  {n:"Bebek Indra", area:"UTARA", rate:4.7, tags:["modern"], pop:1032, cp:"081395786088", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqP0pchCeZ42BqaRbEok8LJflvHWVszbH7eXqgFqvdAJeXpIeZ_Vojtyp9qzKbae-6UHR90uHmX7B_IhgdeonadCC1XhlvWemsjN532We8SCbYIVnAGr-GI26ucK9bgxQhMh1LE=s680-w680-h510"},
+  {n:"Silla Korean & Japanese Restaurant", area:"UTARA", rate:4.5, tags:["modern"], pop:1156, cp:"081327478256", img:"https://media-cdn.tripadvisor.com/media/photo-s/15/be/10/c0/screenshot-20181216-172208.jpg"},
+  {n:"Bowl-Ling Fruit Bar & Kitchen Concat", area:"UTARA", rate:4.7, tags:["modern"], pop:7060, cp:"082314463943", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqd4aSyUpD51J1dJI4Yx1mTEWcG2e5F0LMjmdfMN7otdvaK7IlkiUvtjhc2y62GkxGy3IwPsoQ5YjbKCFXdAeRyg7SDfzjg5p8GnnAcxJrhKYzrBVlOMIRUd9ZAVN-4oOXmtWS7=s680-w680-h510"},
+  {n:"The Bean Garden Coffee and Eatery", area:"UTARA", rate:4.5, tags:["modern"], pop:974, cp:"082116161699", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/6866a1fc-d0da-4530-95c0-b9109c98283c.jpg"},
+
+  {n:"Kedai Tjeria 90'", area:"UTARA", rate:4.3, tags:["modern"], pop:1298, cp:"082329102230", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npYjhVLavO6L-H-NetX_eMK138qAOkpklaaRwgTwlGb2a7mrFp9_B_4Q38lqW-Mq5lmSkyymNfry1kMWn_rG_ypKi1fboOHpNDRFg3uV5fWeShc-CUy9__CSBBB7MvBlbWMs-S3axVp_GPF=s680-w680-h510"},
+  {n:"Teduh Rasa Resto & Cafe", area:"UTARA", rate:4.5, tags:["modern"], pop:247, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4np3hOqwi_1usXyQjggfGy2Rxc5AkyBjCMRyXM2HqgqpnTkLEOxQyfHLmJvK-TTuhMy7Jgp7yF0KjSRrX_sy5DC2ikAWbE9Xj6lVJXJzUq3lgIykj8HyDN5jlmYXuX9H4v3cxYsea69xtun4=s680-w680-h510"},
+    {n:"Padma YK", area:"UTARA", rate:4.7, tags:["modern"], pop:45, cp:"", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTjtNlX-BCzfbgzBW2FLUgvwYr1RGycCN_Kg&s"},
+  {n:"BAO Butter & Things", area:"UTARA", rate:5.0, tags:["modern"], pop:122, cp:"088225144482", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noWybgv4EZaGAQjN-x8nCop6OE5vUyzvXoZa9m6qnafqgWyjkbWSQtSq-6FTKXjBfDS_M6hgy-EM3W-srR2DmS3nkZgm21Fkqr2wz_xrszEN0CqxpDwZGSEHWC1G4yPMSNnmKMG4Q=s680-w680-h510"},
+  {n:"Lestari Corner Coffee", area:"UTARA", rate:4.7, tags:["modern"], pop:2245, cp:"087811122333", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrI6jNWaDOEWUmdb2CXj9Vx153fSNvtWpRW7Bzt9sAkgdF3363B-rlmLl_i1FQ-Y_mcQihtnnGC9y-zn3Voxifryln-sw9H3gFV5dZN5Wmlnh-mfshGeQXJ_rqrgEoN1WYkDtKbY4UNzs1N=s680-w680-h510"},
+  {n:"Mood River Garden", area:"UTARA", rate:4.2, tags:["modern"], pop:926, cp:"085953824263", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npGNJvNPrB8ullMKCpYtXo-fDveYt_BA-OuCebNkr1WF0X9oVw-zE5xv7UJ3nYxuG7p8-uWxwlB4GtHGR0m5AoCTM8cUK2m1lKRxm5yGCQAx2V4rcM2E4KiHKwp5mDdbSBdlQWbUg=s680-w680-h510"},
+  {n:"Nanduto Home Cooking", area:"UTARA", rate:4.9, tags:["modern"], pop:61, cp:"082133197778", img:"https://lh3.googleusercontent.com/p/AF1QipMdELmxCm_A0n-UAIJa7mJOZiPjauL27JHxeC9S=s680-w680-h510"},
+  {n:"RUMINATE Coffee & Roastery", area:"UTARA", rate:4.6, tags:["modern"], pop:1313, cp:"081226610220", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noFhrypbI0-TUtKa2c4j13-FacA8Nuoa-SYJWQbKdk1cXdzMQRE69aKz5xP79yg6uEQFKuUBbMUnIt4vJEEke096zz7-ampIUJfl84mem-uterpwPPeZDhg_2ZCtpQ6ogAMaBFc=s680-w680-h510"},
+  {n:"Wonderlust Espresso Bar & Kitchen", area:"UTARA", rate:4.8, tags:["modern"], pop:547, cp:"087865447065", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqzE8_iGYZTK_pVfnP3T6uU2dqqugdLJbe7wBtYKjrM2PjXQ94nmmH_wzULz0WrGPsukqX9onx4dSFWgy-9g__x5ji_gbK7RcmUhwbPzgK9guWLIWPlv9m6lzEVIZwEzMg-Uh-j=s680-w680-h510"},
+  {n:"Narawita Coffe & Comfy Space", area:"UTARA", rate:4.5, tags:["modern"], pop:418, cp:"085228065000", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrIgVuvpMy2Pwt47aDaCuWIDLkVMHunibCgoMtmlXpjEqGl8-v6xl0XpWK6XFHuiMFeksnZH2SggHpLadR4IGOkgThn-0F9DvMXG6X3RKAC39t79TwAgEwlpRnJBpW7SQftXEo3=s680-w680-h510"},
+  {n:"Floating Resto Jogja", area:"UTARA", rate:4.7, tags:["modern"], pop:1678, cp:"081215829695", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqJ4byTrKly9sezVNAAqkoN9aaSpbMd5NDcqyCQ9Ll-QW4CeuP5HqD6vIUBSXoDKqQL1zl5ZIEq1ZhcWFpRHQ3PTRO0t8GV68IzMwGuaMhulXXwCWnUdHJ2W11QMtKMDu4O1s-M=s680-w680-h510"},
+  {n:"Beukenhof Restaurant", area:"UTARA", rate:4.3, tags:["modern"], pop:470, cp:"(0274)895131", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrHjAjbHZQyE2rPU2DcjpDq05feSwanjgBpNTxMXRCSdEzV9eICf6cJWfOxYAU-iC6PjVYUm6vSEGVdG7cFAf8wWTg1YycnP_TvSAGtXPTd6vhdm5SHFoVU_a88XNH2erxUg_PsVRfYnEp_=s680-w680-h510"},
+  {n:"RamaShinta Restoran", area:"UTARA", rate:4.8, tags:["modern"], pop:392, cp:"0882007881646", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npnXWtnAgrgYt6vOHs0uxRzLA5su6i1E7BSLlTQ-oVMaUOJQuwPTA3v94fd9xZwKN28mG2rEE-Exxg4LI-8UWXR6EgSJbKSwjnA2gxladgEuuKz89Dc-uvtPxwDYcv0xobcCBY-=s680-w680-h510"},
+  {n:"Pengilon", area:"UTARA", rate:4.7, tags:["modern"], pop:2089, cp:"082265001799", img:"https://lh3.googleusercontent.com/p/AF1QipP-qhe28j-1poLWMFv_gTeifDk42Ol33WcNRFdO=s680-w680-h510"},
+  {n:"BADAI RESTO JOGJA", area:"UTARA", rate:4.5, tags:["modern"], pop:289, cp:"081326862212", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npBPXF0P06faSEIupgMrC_NZQeyVd5zohpUKLVDV75Rp4R9D5ddzMSQvtgb7txOE6xKrhoxHoH5cKfXJr2yzEVQ--vKkhGHJRSf4-EdzKgtINKzjugaHCe51QrlflHdXoLLiDY=s680-w680-h510"},
+  {n:"Resto Perdjamoean by Elrama", area:"UTARA", rate:4.7, tags:["modern"], pop:59, cp:"0895363900007", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrNmrCAFUIdI0a-KTHLmiVgLEGZ0DraVBBYpZHDfNCO_pJT1Wbkr4Co8_hdOVlkjCN0Os5FU8VsRdhtnNGJmqPfvF0hlVW9RsAm7f57NpfU8FlQUp_XN9u0mC7E-8DEzqKHjJA=s680-w680-h510"},
+  {n:"Sasmaka Dining & Cafe", area:"UTARA", rate:4.6, tags:["modern"], pop:509, cp:"081288858100", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrEfkrGK5lAVV2LjXgy6Mk8OxSUqwUCbw8OgfaQEBxTmbar6fFzAiIk-4zbXERJdsRTkaKCVy1t7Zr2-GVQ-pWmIL9WknjllKnNSO0zEUi2vvD2mFwNiGt2yDCGM3k-cgCLRfjDaQ=s680-w680-h510"},
+  {n:"SABIN by Seken Living", area:"UTARA", rate:4.6, tags:["modern"], pop:1397, cp:"08112640425", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrZYLBzdiUM69HUUxoiiIfh4dfD3XECr3yN-6902oNzdE6uJYXccYkkXhN2yNfc059rIoHiuNSH5MgqfMSkfoNBnUUm6l_gvm2V1XvosYv8EMIgIYJbd3mfnpJaiZnRvVdN7w0a=s680-w680-h510"},
+  {n:"BORNGA", area:"UTARA", rate:4.7, tags:["modern"], pop:1543, cp:"087732179219", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqfCPmedymNiQBFfkj45cTSVUBk9Ab7wdQDLbIpkzZzL84bpizzlM4UEUHA4IVRQpR4LKZy0HwW2Bshdp94sUTCTrmu6-HAQgzPWRl6N3gxioqVHvOGnZZzBLWR0lzWQk3wd_yBdg=s680-w680-h510"},
+  {n:"STATE Cafe & Brasserie", area:"UTARA", rate:4.6, tags:["modern"], pop:588, cp:"085960195261", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqaa4QJyEKeARFU-CSF4oaCgxd97E6Yr6iE7tB0tVZwGZvsQZ9hPBZVd4z3wyJfujPANaFNPUIR52PwAqf16jeq-z-osWxNcvZv3Bbu1e54l9fjli4XVLdH7BwuTf3znN77Q2OT=s680-w680-h510"},
+  {n:"TIP TAP TOE", area:"UTARA", rate:4.7, tags:["modern"], pop:3478, cp:"081329403145", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqYZkBdzgwl3ZoOT4NxysOTulCdJKc33fj1MtjoOLzeqKRljSThGWzQ_ypfJ2nEIDSX26iMyFziPsKxw_o3m8wr0tjwR-yPsM3y9bniiKDfiM_Q3j1kFfSWyFSBXkSuPb5RDTd69A=s680-w680-h510"},
+  {n:"Swasana by Temata Yogyakarta", area:"UTARA", rate:4.6, tags:["modern"], pop:1560, cp:"081228663338", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npLK4prtOrbnD7RFmmQ1FDwo5fqKTM27GNv1bn4jEHNPIdJIn9iw_-6hccMfkMWKK084MjYfXRiuN33lC7zBp-uvOTedp93YHpCWOt4guf42lcx5NOUHhFqNX4lPxLAvIRzSWLVX1dLios=s680-w680-h510"},
+  {n:"Sugoi Ramen Express", area:"UTARA", rate:4.5, tags:["modern"], pop:4684, cp:"089669661666", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npdrehlPbMIHhlLAiJ6q5jOquDLx9YaSxhgDiLTdFxOn9u2wpm1Evdbk2r7dU62GEewiRzkgYrCNoZyxDfzzfwGEfH4sR8ecM2F8LJ9LHxaHy5Y2jsakHetC9srmmTKbhx9BY0vHpiAALsJ=s680-w680-h510"},
+  {n:"Jejamuran", area:"UTARA", rate:4.6, tags:["modern"], pop:27702, cp:"(0274)868170", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrsPh6kFoPFU5IioFK_W3OIie0ITRiCQOqpBV7dxW9-oYkXpRbgAV9CA2r3p5YJsXWg37r2JCPHRPSMYKLRqnL3QftL20teM7IUFkfDVMLx4Nh_fVNANAITVT5bqvly0Vh26dWSX_TvRS4=s680-w680-h510"},
+  {n:"All Rich Resto", area:"UTARA", rate:4.5, tags:["modern"], pop:254, cp:"081128090888", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqo1CnDVaWj8naWeBEhT4gXe40s9Q_5-XltoKBsC68YtuDOatCXBUttFTw3EWr6c45y7-FnlfEOh5EEL8ulv5oBW4EOO0BFwY4YalaQJuZpGWH9o18H3m5i05qqArQZONh7XwoLb2zndjjo=s680-w680-h510"},
+  {n:"De Tropen Jogja Kitchen", area:"UTARA", rate:4.4, tags:["modern"], pop:715, cp:"08112630331", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr-rxyS5-UQhbTBMI-_wXbE_0K4fl_oKv-oKGDGEACptuYCkGTKJw5ymcjZiFiOvrqXMbVKr3bT7x-GJZqCZsUCzBzhUvzGz-DK8NAreOIdRNOB1kQAyyIkh24Jvqff2ZJdWp41ahjdVAM9=s680-w680-h510"},
+  {n:"Secluded by Kharma", area:"UTARA", rate:4.5, tags:["modern"], pop:521, cp:"08112637378", img:"https://lh3.googleusercontent.com/p/AF1QipO9dywqH3qRe2al0GwnE4_Q1o9EXqf-k9_uMevv=s680-w680-h510"},
+  {n:"Restoran Indonesia Goela Djawa", area:"UTARA", rate:4.7, tags:["modern"], pop:26, cp:"081329076668", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrWieSNeZ6zx7312t8a_WFK1u-NnbH8aJ1Nd_xomh9FWvV1qxwbDQhF3M35GHtWgSgLt_gTl0CYVrdYDlO2WHrztTdnEeofpeFIQ_ocUh7nYVUJnYK8KGpI3NqL2pZTM76K5lec4cB0qYKg=s680-w680-h510"},
+  {n:"Pawon Tempuran by Toto Dahar", area:"UTARA", rate:4.7, tags:["modern"], pop:1615, cp:"081326370009", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nobdO4U6mbhlCM1CLMDjtfAqiPbZ_wFCh6_4ThCBO3gnyrNS2MMC0jJyUpAL-ORAGl6q00cI8UfmM3Mt_ifvtGEq_PKCrvkyjmCF4j3Ec5LRldP4qZtDVEPJqIeoVIXHCOe5EAB=s680-w680-h510"},
+  {n:"Waroeng Yanto Jakal", area:"UTARA", rate:4.6, tags:["modern"], pop:1102, cp:"088216349180", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrREEuGZ0z4xfSuX06pRSTN5QQHeiPK90mtI9mMojbGu8ZY0sv4bSWuMRpSnQnDhDSIcUSZWqNitpO8v9b51gVb2jr-1FbN9uzq-lywcjaf5T9GEQILROdn-vbflAevL0EeS0Ec=s680-w680-h510"},
+  
+  {n:"Skulen Coffee", area:"UTARA", rate:4.2, tags:["modern"], pop:785, cp:"081527709888", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no0fmhKWJ2vRBvhCLFQ0AIqNILPo60DjMd4nBjmQLyLVy1u8Y2v29YJ_nAC7sxxeCLouEsXPJhQOmIS36VqZbytG8aUltTFX1ufTb6oMjHdoXbiStvDb8TAo4__PY7tMPCoUp0w=s680-w680-h510"},
+  {n:"TRILOGI COFFEE", area:"UTARA", rate:4.6, tags:["modern"], pop:1531, cp:"02742833724", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr4MukkTJAxBZ07NZnvmxKuFxsnINnZdTr9-HjoVx20GWD-YixUppppv9clTN3RMyz_76S7ZtOj8KBjkCrkjEI6dGtiqZlHv8ocfEo9sf0ERMB_JuNtqZXPOTIjxsAEMkrsUkrP=s680-w680-h510"},
+  {n:"Selo Coffee", area:"UTARA", rate:4.6, tags:["modern"], pop:138, cp:"082241382492", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no2jIerFTkoe0vMoL1Ou5woFj1n6XI9UDVdn_c2plJQDmG1oRmdVQ4IxlRGyYMU5CmbyDVxeIO5Nq7MEnVrrpheYOel-D9VQz6oP3JDS30emzapadLgoTRfUOjkT-cpCeu2s3u4PFSf-7hj=s680-w680-h510"},
+  {n:"VRTX Compound Space", area:"DALAM KOTA", rate:4.8, tags:["modern"], pop:304, cp:"085328880308", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noMUevhvL2y70VwjbIYyri8_0IodC8cGNBje_lcZ7hEglbmN6cJ8dwOH-pPGC24ZRMxdSETCys0Yl6SoH_LCJL8wW9eeBJmcalJXwORfZo2AkrrJbNVGcAOfU5N6OhraTgwFzC1aA=s680-w680-h510"},
+  {n:"Mie Bonafide Kota Baru", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:1902, cp:"082299959994", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npVpxphSYpUtM4poxLQj8W6nUv64IRqrn96OtSAGc0kI-lj9vkXe6GHIW7Lk9AKQK6RYVMyo9kqXds-wl1uKKyxaVJmgfMlQIqKxdMtiRVNKOLV5H-c8WmtomiXOPC3urAFvd3CDg=s680-w680-h510"},
+  {n:"PLAWANGAN Bistro", area:"DALAM KOTA", rate:5.0, tags:["modern"], pop:89, cp:"08156558992", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noCBJq0VOmR45SRDF37VFLnRGL8IYtvBrpaVQES7LM9Y9ZBqGhBAoPgDB3tJhMKIvcJ1N55g98_Qw6EwJgIF6pW4rp1jSr8ppgJYRQOpA7NHXsl-1RtPB_RfiLwoxZOM3UPON-09A=s680-w680-h510"},
+  {n:"Resto Ikan Liar Bero Jakal", area:"UTARA", rate:4.7, tags:["modern"], pop:823, cp:"081388858370", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqbBFkKS9juCs0Ixxt6IV3slltnISVPAxPirjCWcLIhrxFtvR8ziqf2-doTvWu5KPCQowpO34vYJ3wKBvP_cl9LkD9kWcln3eKcmoNyYqgJ4pmjVtX3L8NhnteXV_EazLCXgzEI=s680-w680-h510"},
+  {n:"RAKU RAMEN", area:"UTARA", rate:4.7, tags:["modern"], pop:86, cp:"08985222058", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noCde7JY-wCDT4sdxONhEoPMd4AIs5F4-AbnbmaWCSdh_kC91CJcK4HveD8qAGjJpajGF2W5isZOw_zOO-PWSXEDQBJ8J5hxqOlQA1snLMdFkGTX9Qz_U_7bqasmg0t5rQl83Wvzg=s680-w680-h510"},
+  {n:"HVAN", area:"UTARA", rate:4.2, tags:["modern"], pop:192, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npLfCrlGC-89uI3zSJaStjfxx33yx92FHIvQ5OUtvtdQOuzNiLHIgjff9E2WQBxnLhf-mesT0wPgB-k6kvKpQV8wElKCKOGgtJMRzX1BstreTBJrZMaCxq60i_HH3XBi9U-v4nA=s680-w680-h510"},
+  {n:"Ditro Grill & Coffee", area:"UTARA", rate:4.6, tags:["modern"], pop:262, cp:"085124245242", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noTQIBQkeqaCaO2Q8J4AXs6wDNNfuJgwf1Oi_CGZTt1sx7ebaEQ9PMLFakib3Mw6jiw6fS2X-ALX5ecZOh7jbFAgM8ismYNzgoofUZaBRdcaZGG8GcMBMQsVb8DeUQGcdb_cuv37Q=s680-w680-h510"},
+  {n:"La Li Sa European Park", area:"SELATAN", rate:4.3, tags:["modern"], pop:2592, cp:"08888089998", img:"https://lh3.googleusercontent.com/p/AF1QipPL0_c8cY1VarXKdViCYiOACorpGr9VE5ftGCSO=s680-w680-h510"},
+  {n:"RAJAKLANA Resort And Spa Jogja", area:"SELATAN", rate:4.6, tags:["modern"], pop:1091, cp:"081224161110", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npe4JOHjDU3SWdJ82iBeBMgXNLAgbKUP3z7iMAkQXc22ZzE4ws4lQFrFQUvoL2C67rwMMT_av0ZnzWSWR5xfuWZn9TkaZg14lcx2Ez5KWouqCaLFlP-Ip73UrwSYeUDJRRCzihmswfyef8=s680-w680-h510"},
+  {n:"Terraskota Coffee & Kitchen", area:"SELATAN", rate:4.5, tags:["modern"], pop:801, cp:"08112931212", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrqWrUt434jV9fwT-xU7tf2PurtIIQ253CBw4Km2xNciB6p-DMwKpCMcxzedZ6mtd6nIT2Us9JuQDHfGb7L_TFlVpr8kUmxqTSDsEyq5O1-Zv7qlD69ofYlN0pdfHLq05yLnHY=s680-w680-h510"},
+  {n:"Nest Coffee & Donuts", area:"SELATAN", rate:4.6, tags:["modern"], pop:1840, cp:"081391649697", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4np1ZqU26haw0h7Tlm58EA5CWI7A3QWAIv7PHSOuIrJ0aPQbd4ra8NPDy6g7H5ggavVXtr29wx6GPrne6H1ttlkPeUXxdNzBoJZYSzAS6_Usk28ZoP_pNPXXXoI5aFLf_0hg7KnTbSMnoIw=s680-w680-h510"},
+  {n:"ChampaJogja", area:"SELATAN", rate:4.8, tags:["modern"], pop:422, cp:"082324996772", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr75xbpSnLI49WdAMkBTKCNwtM-ypPUF7zqCbE-oiRndHEqsHf527ahwqw3vO7xm0tjfkRo5T1ABjn3xQtgN3KZDi88AVXu6TGiqs-XxZNQBv3mfsCCPJBKtTxvA_jW_O_cEfHqeHfwbnzp=s680-w680-h510"},
+  {n:"Kumpeni Burgers, Gunung Sempu", area:"SELATAN", rate:4.7, tags:["modern"], pop:388, cp:"082220701333", img:"https://lh3.googleusercontent.com/p/AF1QipNvIKdoL07koE952_QZdQD20ExWTQOZT--RDEok=s680-w680-h510"},
+  {n:"Mantra bumi coffee", area:"SELATAN", rate:4.4, tags:["modern"], pop:1020, cp:"082220364946", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noTsIuSBl5N5jKXeMHEdVClP-nezLFJvg4Q9eIe9g8m3nvSZNS-s2hB2W956wBq5uvRBAtAKa8GmurL3KsKPsBoBzaFBsjAb6u4WTqsg1YtGF0nX3CIy-z9m61_9BLc8-N9WabZrkQG-tcH=s680-w680-h510"},
+  {n:"Lotus Mio Bangunjiwo Restaurant", area:"SELATAN", rate:4.6, tags:["modern"], pop:921, cp:"087726604177", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no4ZSqSMjRqizfdH5tMhriPeel4kshfLj71r5d7uwZ67eQKQZHwPcxbZp-kIXoLE1RNhMQ-62Z-KFosg8I2Ug4Zhkwvd52NphepgWGky4y0qu1ejV-x_xutsi3wHRy30k4z37pLg_mcX71w=s680-w680-h510"},
+  {n:"Pas Podjok Coffee & Eatery", area:"SELATAN", rate:4.6, tags:["modern"], pop:1085, cp:"082127070180", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrAza0YOxU3A459hxnWw9WT5TpWJzBR7wbB6GJINfWAcWoKT3ud-aSoxSNZ-1H4ZPhr_8sAC8ouORQqmcLIHCrn_X7oDRyM4g0gE-Rcob_PQAJBTNOIyR255Oa755yU8oc3qLtd=s680-w680-h510"},
+  {n:"SÉNA - kopi & pâtisserie", area:"SELATAN", rate:4.8, tags:["modern"], pop:513, cp:"081315782265", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrx5gKCVh4QO0E6cJZugODwrCGErZFSLvyS-cCoEQiuZXXGD6n6tEASmAuLHwSPbrw2GQvjypPAZ6O-j1j2O25A__QoZVYRFK1w7Bvl5AfvKrOTplqzxU1qyceTq2rms-6l8CITL3aNP1R4=s680-w680-h510"},
+  {n:"Demakijo’s | Coffee & Eatery", area:"SELATAN", rate:5.0, tags:["modern"], pop:296, cp:"081977772025", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrjuhVKbwROuCJN2-ZG1gPCgsLhNF2S_AkCXtqM_KCF2VYUh6WgH9Cfo6aof_UDkkcJ6DMgVLZmfb4rLF-e0A-ZbMUWkto8Uu2p4d_zuf8Me8LYS6cZ9kO483dD3wSRnEtQZr_APqfzTOSC=s680-w680-h510"},
+  {n:"Candi Tirto Raharjo", area:"SELATAN", rate:4.7, tags:["modern"], pop:1568, cp:"081215010002", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nobU4NA9C0rDdR97MaxQCi1VOn7z5kqoIQ9BJ6URHRDSEfvNvV9ubSKMRfG5i4ykbm1ntGmZpAoPvfwR2EI-rbsHGS7_Klwiwb_AV9sNWWmxBttHy9BTnXTLS3xA4K5i5P3l-YX=s680-w680-h510"},
+  {n:"Akasia Resto Yogyakarta", area:"SELATAN", rate:4.8, tags:["modern"], pop:33, cp:"081225888256", img:"https://lh3.googleusercontent.com/p/AF1QipOw_tYUtUdeWmqsCtV4TQwRLWSgmgPdwPy5RjXA=s680-w680-h510"},
+  {n:"Sentani Resto", area:"SELATAN", rate:4.1, tags:["modern"], pop:471, cp:"082328512603", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqKmQM1aON1iqItO2gUlYee91CMq-wDt54PZPevQq8w4fguf5QshqD57_WxgWqeJgyLydbUwGBLYZn61sM4Z8MhlcpbfxvzFXtFDhJFnjtrBbVyS4lJbD3Lq-Jeb7RTJyD78XzN=s680-w680-h510"},
+  {n:"Watu Langit Jogja Coffee and Resto", area:"TIMUR", rate:4.6, tags:["modern"], pop:3347, cp:"087738863338", img:"https://lh3.googleusercontent.com/p/AF1QipPDajTUsHkCE1AueVV2rxc4s9FwwZyKArIqsX57=s680-w680-h510"},
+  {n:"Joglo Khasanah", area:"TIMUR", rate:4.5, tags:["modern"], pop:1143, cp:"081326322902", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nowH-E7Zlm9GrirQpmZHdsRYXEIvU6vZKKl4IwPOLcfhkqqt2_mqmmJdj4FMm1y6lLO0WLUjBfguKEbhXfAtQeNai7edHSLVtJqJmgzfROFYeyiuUvZmipAjzxZhHcZHKJ9vi7a=s680-w680-h510"},
+  {n:"Omah Opah Nongkrong", area:"TIMUR", rate:4.9, tags:["modern"], pop:72, cp:"085848908888", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr-ze1XoJvt3Ix1HJFwQm1adtQt1BsRrSyEJKj48klHQnUeApmqkvRUg6McEJfz9WaWvD5h0u7PdB7KSRafrQFgIVAAiId9RuYrTh2ydPH-Ps4MOXi7vWTK7f-OFdBYy5zpfRy8wg=s680-w680-h510"},
+  {n:"Mask Aden Coffee House", area:"TIMUR", rate:5.0, tags:["modern"], pop:38, cp:"081211039212", img:"https://lh3.googleusercontent.com/p/AF1QipM6V6r24y_--MzT4CDR9Spq1WeRtu99N4R2vFVR=s680-w680-h510"},
+  {n:"Titik Tentram", area:"TIMUR", rate:4.7, tags:["modern"], pop:259, cp:"085174265323", img:"https://lh3.googleusercontent.com/p/AF1QipPIX7bCdVAKTeyt2Fd56Dfn7aXZClXjdA5R8i-A=s680-w680-h510"},
+  {n:"Sunset Del Coffee", area:"TIMUR", rate:4.0, tags:["modern"], pop:569, cp:"081779231355", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nprnSZld2GI3_dLE2rCo2J4YfqXhgYkrK2zjCkX7SnTMLFvZyHACZhKiq0ByNCFbMsR6p2vTTGf9i5qFAlgMFIr-B6gz_RL1ZPaUNRsHvTNiGpzeIDd5LmDU6xv12FVO_GbuVhFH67N2QiC=s680-w680-h510"},
+
+  {n:"ABHAYAGIRI - Venue and Dining", area:"TIMUR", rate:4.5, tags:["modern"], pop:5769, cp:"081288898264", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrlg4F-fuG666AR4XYPuKEviE3aK8vO9pWzFrj0jtTpvdv7ZYix2rk2C4AZYZdQ6pPQ3xTRotkTYpjAjekaNgbEWwCtj--tREidOYpABHUvEDY591bAy6KHlJk4tRCwFY5WvdaYGw=s680-w680-h510"},
+  {n:"Boko Sunset Resto", area:"TIMUR", rate:4.4, tags:["modern"], pop:557, cp:"(0274)496510", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noO1GVjal9-JQ0_3nQwO5J3-z7oypRpwsi6mNqna8wiKBFe_NmrjHfmtxILJh1t7PbwplpwmTjIP6Pcob2xNI0C8HKg_OFfhMaa3DA73okpDr5neajbqKQTinmxUqy7YMHrP_c=s680-w680-h510"},
+  {n:"Rama Shinta Garden Resto", area:"TIMUR", rate:4.6, tags:["modern"], pop:2247, cp:"081548144955", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nok3FNnaRVjKApDTqNSxqA0LiosZ-USHsUtVdGno0cRDU4S_KhX9vnVTdgORSQLboy0Wr4JbRXyI_ajzJacl2hC3GAtgil8HRhMZY_hVp2oPXkpYyv714yP1KD-LJ_I880vflW4=s680-w680-h510"},
+  {n:"Lesung Cafe & Resto", area:"TIMUR", rate:4.5, tags:["modern"], pop:414, cp:"082325619841", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqS0LtnVElf_5Sd7jPH377PVJsfSDsMyX94L30H-sqNawbJaOSjXUAFQR3ivSbIY68ltuA_jEH4KFU6VdU5h2vKcRwr3DKE05VoHbqxBU5Jf2QiBWtbi0ICtz7ViUytIyLg8pR48sF5iSo=s680-w680-h510"},
+  {n:"Kopi Perahu Prambanan", area:"TIMUR", rate:4.4, tags:["modern"], pop:617, cp:"085783771540", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrWjVJjKOtF_zMWeeNerEJ2vJKnv9bED70A5-NIc6-7UNe3U8JhbNuvOb6lCsZulbFq9wPwMP5CFCgO-J4B3igRr8z-Hzj4oTbbNC-kbb2TU9B6t83qrspYTIL7fUDL0hgJCyP_=s680-w680-h510"},
+  {n:"Candhari Heaven", area:"TIMUR", rate:4.7, tags:["modern"], pop:2750, cp:"081282677677", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqIZvC4r4DiZd3gi40UzxAqovrIOIRH3cck6fosN9x7YuWK1SCfDzwSWmeUIsU7LTg-765YQRpj_OeBebIFVti0LIWwY7rP2uDSA479q_BPBc_nSzYqdEkvXHl_2IFmlIxrg8bDograoHk=s680-w680-h510"},
+  {n:"Bakso Telkom Putra Utomo Jl. Wonosari", area:"TIMUR", rate:4.8, tags:["modern"], pop:161, cp:"087839912555", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npKLObInMqiF_f7pM7M1_0nDqUx0Wwez9NyMsOQ9ubNWFObz7-NWIxRCEP4q9SfQ9d-a6IbbM8TrFuhNeqB1r2dWLi8t6lwEO7CxGncpKk3Ysr9z_NaFWA5l5Kk__hCQvOZis6m=s680-w680-h510"},
+  {n:"De MANGOL VIEW", area:"TIMUR", rate:4.5, tags:["modern"], pop:1248, cp:"08111667567", img:"https://lh3.googleusercontent.com/p/AF1QipPqkZuZsLd9w0aaTCzhUwUnxbfK9SXoEe7iwuPl=s680-w680-h510"},
+  {n:"Suwatu By Mil & Bay", area:"TIMUR", rate:4.6, tags:["modern"], pop:1762, cp:"082190431561", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqei1CvogNAOOWIqrAdlEPq_ErIKOy8NcpdG7VcPAQOWq_GeioIRIryVlz6F158_as5UR3eP3F2Wdh1QGzG_KHfeSWo5O7OTEfJe4ZW0mDTtLh3PN8ZhDYpG0UlCovUmghMb_mK=s680-w680-h510"},
+  {n:"Srawung Resto & Kopi", area:"TIMUR", rate:4.6, tags:["modern"], pop:1439, cp:"(0274)2851596", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrF33ZFZbKKYh-2ENQ0uGzkJGu6JVXEQr90iMSB1cpUrIIPd-YgMXe-VqXJ0JofUFbtArbg2l9Z1-7wcE71l62V9fuMnt2Sy8VSoBs5MpmXollmq5eSey23F1a-Z_Zjc2nXcTMV=s680-w680-h510"},
+  {n:"Waroeng of Raminten Prambanan", area:"TIMUR", rate:4.5, tags:["modern"], pop:3492, cp:"087839972909", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqeOqGI2sLQmjejh9oLVeaKy3FMx1Wcih_aEg7Z7uxp0Su2e_LIj0hcINcy-e3Uhpz1lIeAHsIAnB1PzYwKAtbhN0p8oEGafdzTe9N8eUIFRIFjmXamwqnzfLzX5-zcCAivS07A=s680-w680-h510"},
+  {n:"Dawet Jembatan Merah", area:"TIMUR", rate:4.6, tags:["modern"], pop:1670, cp:"", img:"https://akcdn.detik.net.id/community/media/visual/2021/05/30/es-dawet-jembut-ketarik-9.jpeg?w=700&q=90"},
+  {n:"Kopi Ingkar Janji", area:"TIMUR", rate:4.6, tags:["modern"], pop:3605, cp:"085601146690", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noaw56MJ5HkhiasbOqNEg0t-jFmYzvUiNVlZP2YpJqrCJpynBa_85GPL9V7bbrJsQET9sVLYkFnPPjggpEpl7Y0BMqRk4Q7mg9Oih8wbZy8Sap2q-JtBNO4DxmVoEHytyHCdwd4rc2xlN0D=s680-w680-h510"},
+  {n:"Omah Cantrik", area:"TIMUR", rate:4.5, tags:["modern"], pop:1412, cp:"081578887788", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrT1qhtsgzCuMq3aj6Jpy8WoZZONqqqkupHdh6-w0iS8ZIcbMHoiE7Q2sFnbFd7OS7SWvWBumzPxwZ952PZ5l0mSxUPnDKNQNglOrGGs0yG2AT6kCZU2cjrsTcJ1FSsR3VIeLSaSA=s680-w680-h510"},
+  {n:"Jiwa Jawi", area:"TIMUR", rate:4.7, tags:["modern"], pop:1425, cp:"", img:"https://lh3.googleusercontent.com/p/AF1QipM7yeuhkYOuge_sdUVvR1dV_p9S4kXYE7wVlvop=s680-w680-h510"},
+  {n:"SELAKSA KOPI", area:"TIMUR", rate:4.6, tags:["modern"], pop:1222, cp:"082242000002", img:"https://scontent.fjog3-1.fna.fbcdn.net/v/t1.6435-9/116233524_130408412083129_671325375261311369_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=XwVSJ1NqTh0Q7kNvwG6esGL&_nc_oc=AdnPZ03tK1T-FoRaFN12LjAl8BXG1hRyNzdx-sf8kzGVH-5beLyw2UNDsoNByvSmN-4&_nc_zt=23&_nc_ht=scontent.fjog3-1.fna&_nc_gid=p2AvnmnwupT3Hv3-hS4eGg&oh=00_AfXB5FcrPU_Z0J_6FEJvxIHNVF0qzqNCS0t3C40qoQRuTw&oe=68D73977"},
+  {n:"RENDANG RAKYAT JOGJA", area:"TIMUR", rate:4.5, tags:["modern"], pop:463, cp:"", img:"https://images.genpi.co/resize/1200x675-100/uploads/jogja/arsip/normal/2023/01/27/warung-rendang-salah-satu-tempat-wisata-kuliner-di-yogyakar-ebs8.jpg"},
+  {n:"Kopi Legi", area:"TIMUR", rate:4.6, tags:["modern"], pop:2106, cp:"081578887789", img:"https://lh3.googleusercontent.com/p/AF1QipOqFu7vJqtvC9kL9BhpwseFqX_HznHcmBJ1jYss=s680-w680-h510"},
+  {n:"SAWAH KOPI", area:"TIMUR", rate:4.5, tags:["modern"], pop:272, cp:"082246648528", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4np8SPYsN3ieI7HsQ4NX18kKpFmkD8_ep7nq9M7vZnwGdzLVQIqdMJeuHSBfrU0jFNs53fyFNpm1JgE7lpFqepvXZn3QXVcM3vsjXhF8IsBQlXNERKUCz1tAecVT3eK1QI5Mj95UeQ=s680-w680-h510"},
+  {n:"Kedai Kopi Natadamar", area:"TIMUR", rate:4.6, tags:["modern"], pop:254, cp:"085641103678", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4not0Q3YhAPXq9PbqOFCWw-f0Ws3GbCf_nvOEsr2xxK7IzVIip4Lp7Kon64X9a6z9mis3EDtvfjLZa9HX98rdTBW64Q1iGa2Spa9__UfX-dmsHLK9tk3rNUUzgnXbXsE4d7k4fXc=s680-w680-h510"},
+  {n:"Watu Amben Kopi & Resto", area:"TIMUR", rate:4.5, tags:["modern"], pop:1814, cp:"081904001849", img:"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhjnTFeSyLOHUJrYW8fjrVZXGOc58m1Z2cKhQg6GgK_Q9oeYXHFyBaTRGGk4bFTpjOLiOllEZx_AuTGPV2vNHJ4NxGMs4skTwIbWEqw9vfgKxBIx26JxpqyY4I6CeQYbGdeVoxBDWPC/w640-h640/millenial-coffee%2526view-watu-amben-jogja-menu-daya-tarik-dan-lokasi.jpg"},
+  {n:"Angkringan Pendopo Lawas", area:"TIMUR", rate:4.5, tags:["modern"], pop:243, cp:"082199939231", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nput6a_RLl28jODMSxHP3CLx0uey3yHdvlEmRRk11Pvr9senDCftUDRlb_AFRTc-EpBvdlkL-bgcxhSUfxqX0l1htk2EGWZyPd5TNmx4HN7aDHy8xlGNoFFN-gafFeWH4-3E4ofq0OCurk=s680-w680-h510"},
+  {n:"Joglo Pari Sewu", area:"TIMUR", rate:4.6, tags:["modern"], pop:1280, cp:"081227266844", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npCPd5eOHKmLTDKO8UjMuyobMLH5xEUYIhH0VCDArxjkYO-DSFYoBOpep_D8nEyy_bJYAXBlLaLUIj7uKvTj8ScknVd8NU4JsAwhz8JNMO3IQqFImDUewTD2VdRoR6HmA2KV5Zg=s680-w680-h510"},
+  {n:"Sambi Resort, Spa & Restaurant", area:"UTARA", rate:4.5, tags:["modern"], pop:2191, cp:"0274896466", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npKIn0b3UkmC5VYqyN_DjlXp2sv7Mm-oqo-3IzknopjYK5-Qgn6vdVLshJkL1uUgyIpJGHYLUFnKTqEea3IovmIT-2e0y0R_kIorBiU1Uf2WXIfJXROXQbfIj_O5gnJaS9IFmrP=s680-w680-h510"},
+  {n:"Banyu Mili Resto", area:"UTARA", rate:4.4, tags:["modern"], pop:2170, cp:"0274433189", img:"https://lh3.googleusercontent.com/p/AF1QipNj6RXUwRCpiE7XpHn7blnOhHLUH2VZ1yt1yF8c=s680-w680-h510"},
+  {n:"Kopi Klothok", area:"UTARA", rate:4.6, tags:["modern"], pop:33143, cp:"0274495626", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noivGB1l575VFzEwIOHmMF3dZIFfqBsEltMChqtoP1apWln687VWDa6THJlY8RPp_d_XZmhzV3yzFW6DRQ--GoytdhlNlxxoRUpLswJy1YwXE3vwcsTeehoqWd6rIflKUFXT5Y=s680-w680-h510"},
+  {n:"Kurnia Seafood Yogyakarta", area:"UTARA", rate:4.7, tags:["modern"], pop:33143, cp:"0274488000", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npT6kNNEiXyVTag9opqXqdhIH0EdUZbBuFyoUWR1eSYfzlhnAgBddo7kKJWgf8h7lP6VMcG4gsn4wfPvotshMK0Lqg_oEq9jnQYxoY5TxLuctqxMovkFMDYqyt4dj7_aUwzylBoww=s680-w680-h510-rw"},
+  {n:"Zona Seafood Kotabaru", area:"TIMUR", rate:4.7, tags:["modern"], pop:33143, cp:"081933999525", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrzJtaIYQySQQbGM52eZQwneHhNXSTyUBp6ST2sqycZZc38aeLEEmUnhsHZVW-RzveRO17COJncu7fOCD0GI-bJo2UBhD9OWP3NgpXprWQcsVYd4UqAcYvB56EUGPyH90F8EVtgvEEfHLFc=s680-w680-h510-rw"},
+  {n:"Kepiting Bang Ja'i", area:"SELATAN", rate:4.7, tags:["modern"], pop:33143, cp:"085786065116", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqcUggeYd8VYiPDN3h2YoDuG5JR7ujNBTkUa6xUO6fmiBdVFQwrQyclwsAJE3XJl6ZfCiPekGBijeCnoBVvv2CvO6ovCE0u_F-pk0-YVKVvMQMxtjV06xUNMlDLA1EMUYL-ydWq=s680-w680-h510-rw"},
+  {n:"Seafood Sentosa", area:"DALAM KOTA", rate:4.5, tags:["modern"], pop:129, cp:"082227192227", img:"https://ruangbogor.com/assets/berita/original/855082176-sentosa-seafood-bogor.png"}
+  
+];
+
+    const DATA_TRADISIONAL = [
+    {n:"Bakmi Jowo Mbah Gito", area:"DALAM KOTA", rate:4.3, tags:["tradisional"], pop:15815, cp:"085228408800", img:"https://www.dejogja.co.id/wp-content/uploads/2024/01/8.-Bak-Mie-Jowo-Mbah-Gito.jpg"},
+    {n:"Lokanusa Kotagede", area:"DALAM KOTA", rate:4.8, tags:["tradisional"], pop:307, cp:"085190078856", img:"https://i0.wp.com/jogjakarya.id/wp-content/uploads/2025/04/Lokanusa-Kotagede-Menyeruput-Teh-Menyelami-Budaya-di-Tengah-Heritage-Jogja.jpg?fit=900%2C600&ssl=1"},
+    {n:"Raos Djogja Restaurant", area:"DALAM KOTA", rate:4.3, tags:["tradisional"], pop:1471, cp:"02744290501", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/535428f2-3e0d-41e2-b057-d63afbc94d8d_Go-Biz_20210714_165252.jpeg"},
+    {n:"Bakmi Gandhok Kadipaten", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:1690, cp:"085330185328", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nozm1nvXpi05911-Nap0i2LrQ3C8N4iMeLWuEBbhi4iwoXpfiQ27rqLf2A8DgarfDqIZyyISpRYkt3lb45_3pu_MUjC6kzfTDyekG1RXCVX9LC929_x2-qSNRb4cS0Iu3wSqBU2HA=s1360-w1360-h1020"},
+    {n:"Bakmi & Bajigur Kadin Mbah Hj. Karto Pak Rochadi", area:"DALAM KOTA", rate:4.0, tags:["tradisional"], pop:7887, cp:"087838332929", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrfEugpqOXZ0mU5rZOWlutGu6mHtUpCdt10rl_vseYjZu29EK0BpTX0tBBPjronbT1RsLvgSxdzxaXzZF9RcpOCR9F6uj3irDkqeIkS4YFKJgO9u5l_MTk9JagsJ6k9pSeJoIc-2Q=s1360-w1360-h1020"},
+    {n:"Warung Bu Komang", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:2899, cp:"081227567891", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/c1f3ca57-81b1-4c32-ba0d-accd20829a1c.jpg"},
+    {n:"Bakmi MasJoyo KOTAGEDE", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:1138, cp:"081327421134", img:"https://lh3.googleusercontent.com/p/AF1QipOr0hH89Z-vJvEQyYvqv2xmD4q_EUNYTYpUKj-L=s1360-w1360-h1020"},
+    {n:"NASGOR LEGENDA", area:"DALAM KOTA", rate:4.8, tags:["tradisional"], pop:1931, cp:"082226662882", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/3d11131e-8fa6-42c5-a647-2b13fa0978e1_274443_646e1f81_Nasi_Goreng_Legenda_Ayam_Kampung.png"},
+    {n:"Bakso Pajero Colombo", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:4752, cp:"0882006337396", img:"https://i0.wp.com/i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/6c847780-f202-477f-8307-5fdd2e8b7b73_brand-image_1629722496630.jpg"},
+    {n:"Kopi Kampung Ambarukmo (Kokambar)", area:"DALAM KOTA", rate:4.6, tags:["tradisional"], pop:3955, cp:"081215819525", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqyqkrCTiYiF3MbLdL_xNSzW_-bpfyQ4C0h4C2VZOXTyphjfOnyrS6gj9fg_44apZgwvFuf3T1hF9BVbpr7Qwaqr2puAhCMoWVVuAjL-dBmpeci_XuewE-hU-CdeRoqL5tAkoWy=s1360-w1360-h1020"},
+    {n:"The House Of Raminten", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:20441, cp:"0274547315", img:"https://homestaydijogja.net/wp-content/uploads/2023/09/The-House-of-Raminten-5.jpg"},
+    {n:"Raminten's Kitchen", area:"DALAM KOTA", rate:4.3, tags:["tradisional"], pop:11963, cp:"087738884008", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npdW4SX4xWrHiNdbB2EBZA31dcJzasLCWWzq0SKPGxMO8xaSJVrDq3u9uLXCiy6nFcUJrICq1g0dENJyJQfKlT9clLohluKtUAY5lNVpWvH5crAV5-jUE4d8g72NoMPw-NBfRrdUXLp5wCT=s1360-w1360-h1020"},
+    {n:"Bubur Hayam Kotabaru", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:6908, cp:"089674776888", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/76747ae0-0aec-4c6e-97df-2fe6cfb85781_21b9171e-1d62-48cf-b5a2-ffe88cd190e9_Go-Biz_20200202_112043.jpeg"},
+    {n:"Gudeg Sagan", area:"DALAM KOTA", rate:4.6, tags:["tradisional"], pop:8807, cp:"085100443035", img:"https://assets-pergikuliner.com/PGlEcWADe-mJ1NIFG0hMq5_CsfE=/385x290/smart/https://assets-pergikuliner.com/uploads/image/picture/1450625/picture-1560913899.jpg"},
+    {n:"Pendopo Lawas", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:12467, cp:"0816904572", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nput6a_RLl28jODMSxHP3CLx0uey3yHdvlEmRRk11Pvr9senDCftUDRlb_AFRTc-EpBvdlkL-bgcxhSUfxqX0l1htk2EGWZyPd5TNmx4HN7aDHy8xlGNoFFN-gafFeWH4-3E4ofq0OCurk=s1360-w1360-h1020"},
+    {n:"Yammie Pathuk Kemetiran Kidul Yogyakarta", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:5891, cp:"082292292112", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqAZAhkngkt_CSWDBBvxXolt_koUh6IpnRZPcGf9mWJDu7T2U7ouFJgCfPGCU1pckHLkH5BSNnNAgepGH5BPyjcvuc4BpKTWe4CnStL13F4HgrEmkvV4IrjsG-6KCxw1u9AdiqEzEMI4tQN=s1360-w1360-h1020"},
+    {n:"Mie Sapi Gajahan", area:"DALAM KOTA", rate:4.2, tags:["tradisional"], pop:1410, cp:"-", img:"https://i.pinimg.com/736x/f8/6d/07/f86d070fc8f1369ccdcd8340408ab472.jpg"},
+    {n:"Mie Doyok Gejayan", area:"DALAM KOTA", rate:4.3, tags:["tradisional"], pop:916, cp:"- ", img:"https://assets.kompasiana.com/items/album/2023/06/22/32e19b67-1263-4f2f-9404-414e9f5a12be-6493e62d4addee1a0449ae22.jpeg?t=o&v=350"},
+    {n:"Gudeg Yu Djum Pusat", area:"DALAM KOTA", rate:4.6, tags:["tradisional"], pop:6114, cp:"0274515968", img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2017/01/gudeg-yu-djum-2.jpg"},
+    {n:"SGPC Bu Wiryo 1959", area:"DALAM KOTA", rate:4.3, tags:["tradisional"], pop:5233, cp:"0274512288", img:"https://nagantour.com/wp-content/smush-webp/2018/04/sgpc-bu-wiryo-1959-scaled.jpg.webp"},
+    {n:"Bale Timoho Resto", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:4819, cp:"0274563685", img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2022/11/278733563_400796691556742_150785262596007471_n.jpg"},
+    {n:"Sawah Resto Nologaten", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:3296, cp:"081226817789", img:"https://www.ascomaxx.com/uploads/large/0eddd802fbba1852fd45e6e0f0884c64.png"},
+    {n:"Taru Martani Coffee & Resto 1918", area:"DALAM KOTA", rate:4.6, tags:["tradisional"], pop:5894, cp:"081336483124", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrZsYxlDZAj0xuKwUXQmVuaC4h8Z762hIkgMEayrE_I-KMUCeq16EnclfnfAL2ZDoe97-PrFVnT2VQdSi5hbFcS_w0V_GEShGaFcmLOouWfpIsL4BEjKB0AX-hKnkwpr2cCcz9fGEzcavJg=s1360-w1360-h1020"},
+    {n:"Bakmi Jawa Pak Pele", area:"DALAM KOTA", rate:4.2, tags:["tradisional"], pop:4740, cp:"-", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4norAA5wjxSx0TULIzx3HstSvUoWx88CnClkc2k8MwQ0CE49haJsVzfPpx9BNokigKjyRpFPh7jxNWLSBuuFjm6KvWAms1AKnvNWRrCQQs1689Ee3XoWEPHLP5KrBAdSHXol3rIU=s1360-w1360-h1020"},
+    {n:"WARUNG SOTO KADIPIRO", area:"DALAM KOTA", rate:4.5, tags:["tradisional"], pop:6967, cp:"081328785271", img:"https://assets.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/krjogja/news/2023/04/21/502566/soto-kadipiro-jujugan-wisatawan-usia-hampir-seabad-lezatnya-masih-sama-230421x.jpg"},
+    {n:"Coto \"La-Capila\"", area:"DALAM KOTA", rate:4.6, tags:["tradisional"], pop:2662, cp:"081392926531", img:"https://nagantour.com/wp-content/uploads/2023/08/coto-makasar.webp"},
+    {n:"Bopet Bagindo Pakuningratan", area:"DALAM KOTA", rate:4.1, tags:["tradisional"], pop:247, cp:"085163539788", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npoTQBLGu3sJiOtdA4_-A1obMfrqpGjEPe77S4DoeRwLYeUqcgemL9HhtTCPv-OwwSO7F1f8gscf_HrxJBb0TVl2IF9OXV6c_pYajcRrTQD9Tbng-u7pX0h_5RgJJDmqi67atIs=s1360-w1360-h1020"},
+    {n:"Ayam Rempah Kranggan", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:44, cp:"085189349074", img:"https://lh3.googleusercontent.com/p/AF1QipPqEhEf9a3gmLExabdRkkmBIZuI8DZUgxzy4hOK=s1360-w1360-h1020"},
+    {n:"Keumala", area:"DALAM KOTA", rate:5.0, tags:["tradisional"], pop:2, cp:"-", img:"https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/e905dcfb-770d-412b-86f7-f00c9f2bcf3d_Go-Biz_20241012_172641.jpeg?auto=format"},
+    {n:"Dapur Mamaks Soragan", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:126, cp:"082344000194", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noGhNOT3WOnhSWl2PizaqbvEG2hzBDHQv2klouOFXNbp6rz_HsgU9e2F_ZehLxHbFoXwjMPoJzrRfXK_6vpYN4MfQOl0gExUJ_LPT8vGPXYjPYues_7G4wZuu38hs6pIkD2pDdcRSoYLmYO=s1360-w1360-h1020"},
+    {n:"Gendhis Jawi", area:"DALAM KOTA", rate:4.4, tags:["tradisional"], pop:603, cp:"082223237997", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no6PnBTzIf4duKcQ7PZ3Wk9qyma8U177deeKmUrVAWjYVuV2l3mHFW0rRq9N0Wo4YYnA9RJpIfjWWcNVuTCYD7KhIVqW3XhQlpSrnT9fFkwIw21EiSGqYiwmgW4MrBrBJrx2n3aHg=s1360-w1360-h1020"},
+    {n:"Tjondrogeni Resto", area:"UTARA", rate:4.7, tags:["tradisional"], pop:122, cp:"081216474267", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrFx141pu8q5J9VfowegOdVQU4XRJcB0xZzXXVCJk1dWiV-kDj4HKaAZwuGMf3qKJnQP0uaaGN7cLI7cpOarKK_zcz8w9m10Qi_Nlk9DMEm1ZAEgRDA0D-sn-4HWwKubP9r_QA=s1360-w1360-h1020"},
+    {n:"The Harjo's Java Resto", area:"UTARA", rate:4.7, tags:["tradisional"], pop:468, cp:"081390413081", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noDBca__GIxSghcrRsV_QzqVWbRimykl5mpap1GQLnKEOZ723zat-pmQZcvoUr8tFBnCzTPEGwxmX65Rs680B5GZ7qRLaJZ_HaFTXYAFQ1M3G4diePN5uNNXG23dEvW0I4UIfhP=s1360-w1360-h1020"},
+    {n:"Rajinem Kopi & Thiwul", area:"UTARA", rate:4.7, tags:["tradisional"], pop:174, cp:"08122993883", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrTUcE2fOnYuIPWGth6dGNBN_VfTF_qf0QGIABuU_p_0KdxgMIe6M84ioe7YX11terPYK-GLX_3qzw67UTY2WlmFMvcGZLBuCD6juAS9DLgU0RFhd7jiTxNLU7znXfFwQMhcKY5gg=s1360-w1360-h1020"},
+    {n:"WARUNG SOP DAN SATE SAPI PAK BAYU", area:"UTARA", rate:4.8, tags:["tradisional"], pop:25609, cp:"082211116600", img:"https://www.magnetoholidays.id/wp-content/uploads/2022/08/bayuu.jpg"},
+    {n:"The Waroeng of Raminten", area:"UTARA", rate:4.5, tags:["tradisional"], pop:11671, cp:"081334560070", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqeOqGI2sLQmjejh9oLVeaKy3FMx1Wcih_aEg7Z7uxp0Su2e_LIj0hcINcy-e3Uhpz1lIeAHsIAnB1PzYwKAtbhN0p8oEGafdzTe9N8eUIFRIFjmXamwqnzfLzX5-zcCAivS07A=s1360-w1360-h1020"},
+    {n:"Waroeng Kopi Klotok", area:"UTARA", rate:4.5, tags:["tradisional"], pop:38088, cp:"082231312004", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noivGB1l575VFzEwIOHmMF3dZIFfqBsEltMChqtoP1apWln687VWDa6THJlY8RPp_d_XZmhzV3yzFW6DRQ--GoytdhlNlxxoRUpLswJy1YwXE3vwcsTeehoqWd6rIflKUFXT5Y=s1360-w1360-h1020"},
+    {n:"WARUNG GASOTANG Iga Bakar dan Soto Tangkar", area:"UTARA", rate:4.8, tags:["tradisional"], pop:2348, cp:"082172001500", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no0QyynLmxHWDCWj-AkEvsSHCGCfQbBiB3rsyY7YW7pLiecvsGxQDc6A-S2EnhN5r2Nibywi456UovWHi0OKgqttbhbJ2uaMlGraD2Ky1YiqKboBXxHc-Ci3F6FlfXrc3SOxgpFrHhu_i03=s1360-w1360-h1020"},
+    {n:"Gubug Makan .Mang Engking Pusat", area:"UTARA", rate:4.6, tags:["tradisional"], pop:6345, cp:"085100489732", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrBbeyEMgfYiDHtDHIVyE5aypnm4W1rpyum2aggWW3PyVvfjAjtf-i91Fx8CFIGAevgpvhiGusMpj017H_mPysKKHxlsen9RafUP2Q_WZCkkBiSLGR9ANzXSWxEoElWpoWX8BDZVri5ERBB=s1360-w1360-h1020"},
+    {n:"Pawon Mbah Gito", area:"UTARA", rate:4.6, tags:["tradisional"], pop:3573, cp:"082134897557", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqA3qdaFGpvdoiO0LzpbYLNoewrzzWK845NMFkRHTFVsOc8cSgL79-SsPSJhVGUB2Xbo3FONcRRW0laS-J1KZs47gjy51U9vWnEgYO3hb5N4EoJCOGIV7ZWdAAFOFu6DXMB_BV3Og=s1360-w1360-h1020"},
+    {n:"Erista Garden - Erista Griyo Dhahar", area:"UTARA", rate:4.6, tags:["tradisional"], pop:4366, cp:"081251310434", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqxExbI7M4u-h2XGdkgiSAOsp8q2mSSVCYYD0QrQhL3BR79WBCyMUKqs7zl8G8COvt8cHsBglg9rrQeQ_fHRmt5X3BySZt5FFMSecMOGxGGkhxGcuYyyfk8OJtHDfouBXvmMMNXE5w9T_dw=s1360-w1360-h1020"},
+    {n:"Tengkleng Gajah", area:"UTARA", rate:4.4, tags:["tradisional"], pop:23363, cp:"081227686809", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrrBICTCJjuAfoLSunaARvNwbIA_EuAPh5WtxFMGQPpZ0if9tRCC9dCR6Y2R7wZv1GwlS6HgN7pBf_Q6mmYSBVuQ907ifKG7exCOSKDUaIgwoNcTkjWmEj8mqA2sruqPao5yNkYCDqCgBg=s1360-w1360-h1020"},
+    {n:"Sate Ratu", area:"UTARA", rate:4.6, tags:["tradisional"], pop:10637, cp:"0817556666", img:"https://lh3.googleusercontent.com/p/AF1QipMK4WScFZjrgiqcw0dTZoWIetNnNVmG0Q6tWhIq=s1360-w1360-h1020"},
+    {n:"Ayam Pedas Artomoro", area:"UTARA", rate:4.5, tags:["tradisional"], pop:4729, cp:"085104460855", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noMNT9gLwSP-yhavvu7wnupdRke_GFv-UYLhrZGwgkMVcYxH-DnygNXbsGNGlR67FZkBLg8ZoWWyhKmvimqquE9Kh1WnoJ3_yRFUhJt5JzLGmwjXtIKVX1WYnLU9opstPOaUTeD=s1360-w1360-h1020"},
+    {n:"Ndalem Klangenan", area:"UTARA", rate:4.1, tags:["tradisional"], pop:251, cp:"082230908443", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no-ba1u06KLEjCA8hPvKGVHM3apNrdkznUCCgcmrWVUi2XlMCkP77IHS7z5Sezv9huvNucqXMU11th3-ZNcwT2fmfyG6qOVICHJcmkc42n1p-hXG4j2hiI08vLPzZ4OsS9hviw0NM7U3YKn=s1360-w1360-h1020"},
+    {n:"Iga BAJOG (Iga Bakar Jogja)", area:"UTARA", rate:4.3, tags:["tradisional"], pop:6594, cp:"082134019090", img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2022/07/igabajogasli-by-@igabajogasli.jpg"},
+    {n:"Angkringan Anggajaya", area:"UTARA", rate:4.5, tags:["tradisional"], pop:2890, cp:"081226081696/ 082241394374", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npuG090KBO5OXm_F6s-8-G8OXRjxNoy9aajQJnzSc1Oyhyuggv7kpz-uWIwvcalpUPqoDC8VPnhJMlfgaFYfUPCCGgfYQJUpUdn4_LEyycgeBkvCiyHx4TbBS1dpZflwRXIGGy6OchizD4=s1360-w1360-h1020"},
+    {n:"Moelih nDeso", area:"UTARA", rate:4.2, tags:["tradisional"], pop:2046, cp:"082137999988", img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/3a/2e/74/waroeng-moelih-ndeso.jpg?w=500&h=-1&s=1"},
+    {n:"Sate Kambing Mbah Giran", area:"UTARA", rate:4.2, tags:["tradisional"], pop:949, cp:"082223888827", img:"https://assets.telkomsel.com/public/2024-12/sate-kambing-mbah-so.png?VersionId=5HcmiP_bYm4YUX_Hy.xGlhbhDhWK97.H"},
+    {n:"Vilakopi", area:"UTARA", rate:4.7, tags:["tradisional"], pop:264, cp:"081215256292", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npO20OB7igKDJSQligvsI1g2QJcDwVC9wLl2YxqUtNRv6915rcDWat7yyI1-otZruM5aSSJKy_wTJ6MxdOiPGr4WEIw-fp5L0Erb3j5M_14-ehHkF_TW7cx16StGcY-a6yGxbfEsv2PdnYR=s1360-w1360-h1020"},
+    {n:"Gendhis 101 Masakan Jawa", area:"UTARA", rate:4.2, tags:["tradisional"], pop:622, cp:"087838161150", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nro4o8J3dekh0egianJh_ee0hPZ7NHvIaiIP5KSLEo9xiapcp3-vPchZzPeV8Jf_HxfNbBwqZbgFR4xeSJ16t3S9shh3QPnilaW4wojh7IFpMKwdIyWsKBnKMxIeOElwvmhP9vKq5f9CFQ=s1360-w1360-h1020"},
+    {n:"Pesona Pingka Kopi & Resto", area:"UTARA", rate:4.0, tags:["tradisional"], pop:196, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noVFXquU5ExxMHghSL8Yb4FVdCV88FyhokarBmuih2tOHwfecNfNnqArdEoB0lQhKQuCMz2pfc1kQMdT_KbVuqRxDVGBJXNLqXgGQzXL2PqNNnfE7kr8iRMVTzAI3S_ZPIVH2QW=s1360-w1360-h1020"},
+    {n:"Warung Eyup", area:"UTARA", rate:4.6, tags:["tradisional"], pop:812, cp:"081322662013", img:"https://lh3.googleusercontent.com/p/AF1QipM2qBRm-_7krH10JWoiKEgA1flmsMQ3urlpKO1Z=s1360-w1360-h1020"},
+    {n:"Pondok Merapi", area:"UTARA", rate:4.8, tags:["tradisional"], pop:609, cp:"087835060780", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrYS6Ummf_R1d3sFsPX3bq4z8_MmN30UDY4x9EnLU9ASBf7BlRSkdVssrUhCp3X_gSDf41IPyJ5_yJMdiSm8itZaIBHdLyI-sk-Yj_v6uo_oxx5C_z8ydPV3OA7lsZ7iWqP-nU=s1360-w1360-h1020"},
+    {n:"Warung Kopi Merapi", area:"UTARA", rate:4.4, tags:["tradisional"], pop:8283, cp:"082145109003", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4no-vjgcUTyfgsqDl5kyREjanlab5Z_MhpTwDx8YLlnEmu4QcjEaaTIPJ-5HB21FH6sY467yv0z3LJZIF2A2te3g1-Af9d-frYzPKLe2mX3ZOTc3zMohFSTmkN84T1AR2Xh4QOg=s1360-w1360-h1020"},
+    {n:"Warung Cangkruk", area:"UTARA", rate:4.8, tags:["tradisional"], pop:172, cp:"08111401900", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noqbqhBPHRloNDaFfwNJoNnzy0FjCjCtRp4zI1iZbftz_aJbzfXPDFnIzP1m0qVtmuCfsfE40Ox6VQJIp3Sc3ZZHAAMsc3ER1alQqT8j5QcuHKQ3ijFsmo1EPnuk-CWh0njDUx4ws-8ivSc=s1360-w1360-h1020"},
+    {n:"The Allabun Resto & Garden", area:"UTARA", rate:4.6, tags:["tradisional"], pop:457, cp:"0813312109730", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noHPBmwKyH5R-pqCdHBTHef7ovwy87f4BExfBIBQPTS9xTXp9fOB0s3f18rA-2wDdk8zclVRAOf9fgwxEq8xJAL5LvCmr4ItOtUNxvjAfxq7PsT_U9wGR9Dd99v2nlfZ9Z3iFI=s1360-w1360-h1020"},
+    {n:"Warung Makan dan Catering Mbah Ganis", area:"UTARA", rate:4.0, tags:["tradisional"], pop:2510, cp:"(0274)4464072", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr4u4DWlNzku1kXCtL3-T5oQrzX9AB325OfVnCi1Z2YKQvtoeS2qVaZAsNHVsWu366A5Iz43xS8qLGZqLM2Pc_CVUbBA5fa_cBNnwJQLBg2qeExqx36-EJ2oUAoP3XT9jfRr5pBAw=s1360-w1360-h1020"},
+    {n:"Warung Ijo Pak Pardi", area:"UTARA", rate:4.0, tags:["tradisional"], pop:1272, cp:"085643054143", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrplfnQMPm2x1f1uubebCU9ZKe4xAEGD5hunSjt2Vjsif7doJT1RqZ_JQHInCYwrzfO4L7UnU4-AkaI7wYPkKtgbq4TRXKMK78AYiYFkMFW7ZH5e4h8fNI1CmM5oP1pGyjXmvgi=s1360-w1360-h1020"},
+    {n:"Pawon Jinawi", area:"UTARA", rate:4.4, tags:["tradisional"], pop:670, cp:"085643430490", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrXED-yIyoIqJ12HCo-oAl1iZViMimpo6nnZtPajATlLH_lwYCxzERgf3FADEHJLrU6rwfE9XKIonFwq_PSOkB1FtPSdRlLIFGeBG8Y7EBWcWwa_Gui8zHBRKjfYLoxRHzt68I5WxY496Y9=s1360-w1360-h1020"},
+    {n:"Resto & Catering - Joglo Pari Sewu", area:"UTARA", rate:3.7, tags:["tradisional"], pop:2679, cp:"082244400500", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noh-_Mp_HXUzW1WiluspzSg5b-IeGLA_EN-i1fZVz1I9hZ9wJzGIDCGsUd6lr2y7GLKTNL-lOSnQQkh3FfVWJUrMmk98Kp9VP9VqpHwhIUDewZm_SKInRlmJbbUrS3eq2_Jmhm3=s1360-w1360-h1020"},
+    {n:"Sasanti Restaurant", area:"UTARA", rate:4.5, tags:["tradisional"], pop:1542, cp:"081227879000", img:"https://lh3.googleusercontent.com/p/AF1QipMppe7UQKDf2o_kWzjpFZtFVwfxIj4eD8E74HGx=s680-w680-h510-rw"},
+    {n:"Raya's Coffee & Roastery", area:"UTARA", rate:4.6, tags:["tradisional"], pop:730, cp:"08179250582", img:"https://lh3.googleusercontent.com/p/AF1QipNwgcLdII8TWYjEixvPDBg2HovidzohEE93EcUv=s680-w680-h510-rw"},
+    {n:"Waroenk Pengkolan", area:"UTARA", rate:4.7, tags:["tradisional"], pop:694, cp:"081328043296", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq_Lmo3hxzx58CiNVezhnWtf-SkzUqTBxl11ZCFFu0jdF9j87hNTBc7uCfMvEBPBmi6e5hjIWBJerJqQSvjBQjOXgdbV_owbQsBgQmsZKTMVDCdeWdMIK7ZmMg94E9bsop4SaDG=s680-w680-h510-rw"},
+    {n:"Mertamu Restaurant", area:"UTARA", rate:4.3, tags:["tradisional"], pop:577, cp:"081386571414", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npvj_Tuklf9fP8zTXqM9uzVdrDr-rlb_OYB40YjzCLQ_3qPgTn6RM8dWZpwSgVbvhrVtoWI0nnK8uaRPuyRa3iYks48sRMnQo5VKIAYd7zR1lfe3I8cAtLkbtAXbAbTbqX05vdk=s680-w680-h510-rw"},
+    {n:"Ikan Bakar Jimbaran", area:"UTARA", rate:4.4, tags:["tradisional"], pop:2214, cp:"(0274)4463983", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noy4YJ8lprgQJ4uNBVPGtgG-Ji0ON9vBncAcaD5whjESnogmyrk-4Gsd1eEVclsnOL6o38sJr-305CuKHjEgrgyZ8OtQLP0f32ZIkMHJYNUzn5CenFIOLhfeYrV0QShHb4JN3q4Zw=s680-w680-h510-rw"},
+    {n:"Bale Bebakaran Jakal 9", area:"UTARA", rate:4.6, tags:["tradisional"], pop:2163, cp:"(0274)2838418", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq58qaCmlzyNB_4ns67f5lvAzwNLyHdh6MX6an-_F4bfhWJwUi88mS1hXUSwlrjUS7xNt81FMhOqmzKypV7Te9sThVneiQTSBKJWEwRobQDIasVgbTGiHY38EFEOzUOAnQc5qZ9Kw=s680-w680-h510-rw"},
+    {n:"Warunk Iciiik Iwiiir", area:"UTARA", rate:4.6, tags:["tradisional"], pop:1027, cp:"087838940347", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noSzIxMcYF8oSL6t3FpL498UtyeViGMI0EFda035UB4PIcOEdZrRWTvcQEAGDtxsF1rCCMGJDaE74YFaBoBbhNUEub2hxpePd-l_HyG4Wl5Vl7IKvyNsP7XBCRlBPSYibmCpdyj=s680-w680-h510-rw"},
+    {n:"Waroeng Belik", area:"UTARA", rate:4.4, tags:["tradisional"], pop:2036, cp:"082123689200", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq5c8yUtIboNmNPmMKVKYT59nq9rK5fs2YRamSM3mg0rXXNiL0QJHgeSwWqph1JanZg_XaK5upqfKRxkaf-VSRKsG_BwwGoXEJNK4eyv64wiFVyXBeWReBky9qSsQcroEB4gJ3P=s680-w680-h510-rw"},
+    {n:"Ikan Bakar Cianjur - Jogja", area:"UTARA", rate:4.5, tags:["tradisional"], pop:3988, cp:"081130751665", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noS-zaa2pw2vIXIQwsseCLlajgaqxNIUKcffObPpSbiIX9w5FsF61zvJCJE5j8NvvRhkl7tpp3x9soMvhA2kV4lWinm_EaEuJfblnlq3znEy_gvKUzQqrr7i4-JQ403bmFYUJBx5A=s680-w680-h510-rw"},
+    {n:"Muara Kapuas", area:"UTARA", rate:4.4, tags:["tradisional"], pop:2447, cp:"(0274)4533317", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrG-6G4C7zjvkYfZ7MRSJDGVMvmJ-Yz-Fw366DiglmJvPQseR_lz4BK4sHWIPR8Mc2-p9RqlxIdMUP6iugTEbZvZ1vhR0p6L57vNa8OUR9mMHYTVGta_sZcklrM4cCmQ8XnqDAlzRTo7KuN=s680-w680-h510-rw"},
+    {n:"Sate Klatak Pak Dewan", area:"UTARA", rate:4.2, tags:["tradisional"], pop:528, cp:"", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npfqS15Z1bPgxDHu9vd4fz4rM6ICP3uoL1Y0o7EIOeLJmPhBq24Fyua9lp3nGc7YgCPvwlrprnjX9x7L2f1c52JwaEf9CC6BvUdVi99I4UzE3mNQYpoQCM3vC-gJlZ9Jc-0jjMy=s680-w680-h510-rw"},
+    {n:"Tera View Yogyakarta", area:"SELATAN", rate:4.5, tags:["tradisional"], pop:369, cp:"081359745720", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npjXP0dMLsC7s93T6dR8jHKXwTYyNnVVHEPiQBCWFEER3qJCBsaZaXTZc2uOisArDzRt5zcqMtyfDv-OfE9yk-xyiBmDYkmSl__3ELiUecgLx3_n_PIMBgYv97IQb57pPsAOSZhRA=s680-w680-h510-rw"},
+    {n:"Kopi Gamol Iga Bakar Hotplate", area:"SELATAN", rate:4.2, tags:["tradisional"], pop:1250, cp:"082142615150 / 081325678160", img:"https://lh3.googleusercontent.com/p/AF1QipMsVfY3gszj2C2NDtVRi37vInrAyIUEIFqmOMzR=s680-w680-h510-rw"},
+    {n:"Joglo Resodinomo", area:"SELATAN", rate:4.8, tags:["tradisional"], pop:3454, cp:"085742233400", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npEUMwOJMpuX7qYwg2zsSoBgG1tPFXE5JJG2mTpEUFsSURw5dneNASLXn0tjbGr0Alj54bkGODJmOmIPz7tqOJiYIDeqdyS2U8TC9CHe6VGNIlBSxQt8kSVfJSdqLIAspe6rMwE=s680-w680-h510-rw"},
+    {n:"Ayom Jogja", area:"SELATAN", rate:4.7, tags:["tradisional"], pop:3492, cp:"(1) 08112957095 (2) 085742233400", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrTnWEbSbuIrVJm6bbBz3QpiNBtXTN-kH3yA-qpf5oMM_oiht5rabtLg756f0WqR_IStkTnaa0pbeTDg2YCvFpqr9H4rn8I9jV2BHzjwHl_8BkR7OxvzlvhOl44OsQLyj1fHx1LRU7BZ8-A=s680-w680-h510-rw"},
+    {n:"Sate Kambing Muda Balibul Wates", area:"SELATAN", rate:4.6, tags:["tradisional"], pop:1193, cp:"082140659809", img:"https://lh3.googleusercontent.com/p/AF1QipOu6aisPSJsXtglak8HeXjJMHNeMCsWf4Mdu7Fr=s680-w680-h510-rw"},
+    {n:"Kedai Omah Londo", area:"SELATAN", rate:4.8, tags:["tradisional"], pop:27, cp:"087738828832", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noaAyBDUQs4yFwFcGpvlX2R9K_cjfhfe_LXTbmRfWglqPQWje3cM9ToTBZ_1x8npKOPByQcUo7GIn_A6YkjX3WFCz1NyhZB6l2i8w-p5poda-l5_b9cqohZUmESQRAFKlM8HIhU=s680-w680-h510-rw"},
+    {n:"Waroeng Tedoeh", area:"SELATAN", rate:4.6, tags:["tradisional"], pop:2106, cp:"082224064446", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr8xFMOw4QfQP_0MLF-ldbY85wEVVzd1kJWREHGAYGqOsl-_OddXODN5i8zpVwXma7O6inKog7erPHR4wlQT_TUQ_Badk--LfWkGcX1VUrpbjwagMH6x5mTrpatiIMbrv3cij9w=s680-w680-h510-rw"},
+    {n:"Kandang Ingkung Resto & Kopi", area:"SELATAN", rate:4.5, tags:["tradisional"], pop:4555, cp:"081329864579", img:"https://lh3.googleusercontent.com/p/AF1QipNzWGOuq2EIumcUSAc9TOVwUMBRrwM35KzjaVE=s680-w680-h510-rw"},
+    {n:"Kopi Jolotundo", area:"SELATAN", rate:4.5, tags:["tradisional"], pop:845, cp:"085198613532", img:"https://lh3.googleusercontent.com/p/AF1QipOCaE9tbAeDQbfJJuPnd6qbMRKHclGpzaLgRjWa=s680-w680-h510-rw"},
+    {n:"Ayam Goreng Bu Hartin Toyan Wates", area:"SELATAN", rate:4.4, tags:["tradisional"], pop:979, cp:"08112644418", img:"https://lh3.googleusercontent.com/p/AF1QipMIHMa6F0RU3U8xyhomV_0B5RIYKUYxehGkNTqI=s680-w680-h510-rw"},
+    {n:"Kopi Randu Bibis", area:"SELATAN", rate:4.4, tags:["tradisional"], pop:2324, cp:"02742816381", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4noFLSQzGxNqL2zQutZhKUVvbJ7l5kOokMllZF1y3X90W7tagUGCZ3QEWlSeDbxqtlYSY3E_nWbO1JC5bXKREmyfKskGx6ENZv0J8APHFxUcFTX-W-JPpM9GM7NpyDloP1pBBNzgsQ=s680-w680-h510-rw"},
+    {n:"Angkringan Puncak Bibis", area:"SELATAN", rate:4.6, tags:["tradisional"], pop:4871, cp:"081548140056", img:"https://lh3.googleusercontent.com/gps-cs-s/AC9h4npiAvnmfkw0gFQTp9qZG6_V0GxxEKbDYfryB50XqI6XIbmfLK9UcY6145JOiikHDlMVPCmaiHm4VVVOIoyDMZqChgpAUJO6CEr_kJXxgfFNi1l1iEeAzTAGoMhLouy3dMbMV6Bd=s680-w680-h510-rw"},
+    {n:"Waroeng Pempek Cik Ana", area:"SELATAN", rate:4.7, tags:["tradisional"], pop:824, cp:"0858783656"},
+];
+    
+    // Gabungkan data dan beri penanda kategori
+    const ALL_DATA = [
+        ...DATA_MODERN.map(r => ({ ...r, category: 'Modern', file: 'restoranmod.html' })),
+        ...DATA_TRADISIONAL.map(r => ({ ...r, category: 'Tradisional', file: 'restorantra.html' }))
+    ];
+
+    // =========================================================================
+    // 2. FUNGSI PENCARIAN
+    // =========================================================================
+
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const searchResultsDiv = document.getElementById('searchResults');
+
+    /**
+     * Menjalankan pencarian berdasarkan keyword.
+     * @param {string} keyword Kata kunci pencarian.
+     */
+    function performSearch(keyword) {
+        if (!keyword) {
+            searchResultsDiv.innerHTML = '';
+            return;
+        }
+
+        const lowerKeyword = keyword.toLowerCase().trim();
+        const results = ALL_DATA.filter(r => {
+            // Cek nama, area, atau tag
+            const nameMatch = r.n.toLowerCase().includes(lowerKeyword);
+            const areaMatch = r.area && r.area.toLowerCase().includes(lowerKeyword);
+            const tagMatch = r.tags.some(tag => tag.toLowerCase().includes(lowerKeyword));
+
+            return nameMatch || areaMatch || tagMatch;
+        });
+
+        renderSearchResults(results, keyword);
+    }
+
+    /**
+     * Menampilkan hasil pencarian di dalam div #searchResults.
+     * @param {Array} results Hasil yang ditemukan.
+     * @param {string} keyword Kata kunci asli.
+     */
+    function renderSearchResults(results, keyword) {
+        searchResultsDiv.innerHTML = ''; // Bersihkan hasil lama
+
+        if (results.length === 0) {
+            searchResultsDiv.innerHTML = `<p style="text-align:center; color:#dc2626;">Tidak ditemukan hasil untuk "${keyword}".</p>`;
+            return;
+        }
+
+        const listItems = results.map(r => {
+            // URL yang mengarahkan ke halaman detail yang benar, membawa keyword di parameter 'q'
+            const detailUrl = `${r.file}?q=${encodeURIComponent(r.n)}`;
+            const categoryClass = r.category === 'Modern' ? '🍴' : '🥢';
+            
+            return `
+                <li>
+                    <div>
+                        ${categoryClass} <span>${r.n}</span> <small>(${r.category})</small> 
+                    </div>
+                    <a href="${detailUrl}">Lihat Detail</a>
+                </li>
+            `;
+        }).join('');
+
+        searchResultsDiv.innerHTML = `
+            <h2>${results.length} Hasil Ditemukan:</h2>
+            <ul>${listItems}</ul>
+        `;
+    }
+
+    // =========================================================================
+    // 3. EVENT LISTENER
+    // =========================================================================
+
+    searchForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Mencegah form melakukan submit default
+        const keyword = searchInput.value.trim();
+        performSearch(keyword);
+    });
+
+    // =========================================================================
+    // 4. LOGIKA PENGARAHAN KE HALAMAN DETAIL (OPSIONAL TAPI KUAT)
+    // =========================================================================
+    // Jika user menekan ENTER/Cari dan hanya ada SATU hasil, arahkan langsung.
+    // **Keputusan desain: Untuk saat ini, kita akan tetap menampilkan daftar hasil 
+    // agar user bisa melihat kategorinya. Logic di atas sudah memadai.**
+
+function displaySearchResults(responseText) {
+    let allData = JSON.parse(responseText);
+    let resultsContainer = document.getElementById('searchResults');
+    resultsContainer.innerHTML = ''; 
+
+    // 1. Baris ini membatasi array menjadi 15
+    const MAX_DISPLAY = 15;
+    let limitedData = allData.slice(0, MAX_DISPLAY); 
+
+    // 2. Loop HARUS menggunakan limitedData
+    limitedData.forEach(item => { 
+        // 3. Pastikan kode pembuatan LI ada di sini
+        resultsContainer.innerHTML += `
+            <li>
+                <span>${item.n} (${item.kategori})</span>
+                <a href="restorantra.html?resto=${encodeURIComponent(item.n)}">Lihat Detail</a>
+            </li>
+        `;
+    });
+    
+    // Opsional: Tambahkan pesan
+    if (allData.length > MAX_DISPLAY) {
+        // ... (kode pesan) ...
+    }
+}
+</script>
+</body>
+</html>

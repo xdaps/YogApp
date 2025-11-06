@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YogApp - Yogyakarta Istimewa</title>
+  <meta name="description" content="Cari Hotel di Yogyakarta dengan filter bintang, fasilitas, dan area." />
+  <style>
+    :root{
+      --bg:#f7fafc; --card:#ffffff; --ink:#0f172a; --muted:#475569;
+      --brand:#22c55e; --brand-2:#06b6d4; --bd:#e2e8f0; --chip:#eef2ff;
+      --warn:#f59e0b; --ok:#16a34a; --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--ink); line-height:1.5;}
+    .wrap{max-width:1200px;margin:auto;padding:16px}
+    header.top{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#fff,rgba(255,255,255,.92));border-bottom:1px solid var(--bd);backdrop-filter:blur(6px)}
+    .top__inner{display:flex;align-items:center;gap:12px;padding:10px 0}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand img{height:60px;width:auto;display:block;  
+      display: block;               /* biar bisa kasih margin */
+      max-width: 100%;/* biar responsif */
+      /*border: 0.000001px solid #7fce9c8e;    /* border warna hijau */
+      border-radius: 16px;          /* sudut melengkung */
+      margin: 20px auto;            /* jarak dari tepi layar, auto = center */
+     /* outline: 0.1px solid rgb(87, 227, 117); /* garis luar biru */}
+    .searchbar{flex:1;display:flex;gap:8px}
+    .field{position:relative;flex:1}
+    input[type="search"]{width:100%;padding:12px 40px 12px 14px;border-radius:999px;border:1px solid var(--bd);outline:none;background:#fff;box-shadow:var(--shadow)}
+    .clear{position:absolute;right:10px;top:50%;translate:0 -50%;border:0;background:#0000;cursor:pointer;font-size:18px;color:#64748b}
+    .btn{appearance:none;border:1px solid var(--bd);background:#fff;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+    .btn.brand{border-color:transparent;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:700}
+    .btn.ghost{background:#fff;border-color:var(--bd)}
+    .controls{display:grid;gap:10px;grid-template-columns:repeat(12,1fr);align-items:end;padding:12px 0 4px}
+    .ctrl{display:flex;flex-direction:column;gap:6px}
+    label{font-size:.82rem;color:var(--muted)}
+    select{width:100%;border:1px solid var(--bd);padding:10px 12px;border-radius:12px;background:#fff}
+    .amenities{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:#fff;border:1px solid var(--bd);cursor:pointer;user-select:none}
+    .chip input{display:none}
+    .chip.active{background:var(--chip);border-color:#c7d2fe}
+    .subtle{color:var(--muted);font-size:.9rem}
+    .resultbar{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+    .grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
+    .card{grid-column:span 4;background:var(--card);border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .media{height:160px;background:#dfe7ef;position:relative}
+    .badge{position:absolute;left:10px;top:10px;background:#0f172a;color:#fff;padding:6px 10px;border-radius:999px;font-size:.8rem;opacity:.9}
+    .content{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+    .title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .title h3{margin:0;font-size:1.05rem}
+    .stars{display:flex;gap:2px;font-size:14px;color:#f59e0b}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:.9rem;color:var(--muted)}
+    .tags{display:flex;flex-wrap:wrap;gap:6px}
+    .tag{font-size:.8rem;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#0f172a;border:1px solid #e2e8f0}
+    .actions{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px dashed var(--bd);gap:10px}
+    .actions .btn{flex:1}
+    .empty{border:1px dashed var(--bd);padding:30px;border-radius:14px;background:#fff;text-align:center}
+    footer{padding:40px 0 60px;color:var(--muted);text-align:center}
+    details.tip{background:#fff;border:1px solid var(--bd);padding:12px 14px;border-radius:12px}
+    details.tip summary{cursor:pointer;font-weight:600}
+    @media (max-width:1100px){.card{grid-column:span 6}}
+    @media (max-width:700px){.top__inner{flex-wrap:wrap}.controls{grid-template-columns:repeat(6,1fr)}.card{grid-column:span 12}.actions{flex-direction:column}}
+    dialog.modal{border:0;border-radius:16px;width:min(720px,92vw);padding:0;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    dialog::backdrop{background:rgba(2,6,23,.55);backdrop-filter:blur(3px)}
+    .modal__head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bd);background:#fff}
+    .modal__body{padding:16px;background:#fff}
+    .kicker{font-size:.8rem;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0}
+    .rating{display:inline-flex;gap:6px;align-items:center}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top__inner">
+      <!-- GANTI TEKS MENJADI LOGO -->
+      <a href="#" class="brand" aria-label="Restoran">
+        <a href="index.html">
+  <img src="logo1.png" alt="Logo BPJS" width="120" style="cursor:pointer;">
+</a>
+      </a>
+      <div class="searchbar">
+        <div class="field">
+          <input id="q" type="search" placeholder="Cari nama hotel atau area… (mis. Malioboro, Alana)" autocomplete="off" />
+          <button class="clear" title="Bersihkan" aria-label="Bersihkan" onclick="q.value=''; q.dispatchEvent(new Event('input'));">×</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="controls" aria-label="Filter">
+      <div class="ctrl" style="grid-column: span 4;">
+        <label for="area">Area</label>
+        <select id="area">
+          <option value="">Semua area</option>
+        </select>
+      </div>
+      <div class="ctrl" style="grid-column: span 4;">
+        <label for="sort">Urutkan</label>
+        <select id="sort">
+          <option value="pop-desc">Paling populer</option>
+          <option value="rating-desc">Rating tertinggi</option>
+          <option value="stars-desc">Bintang tertinggi</option>
+          <option value="name-asc">Nama (A–Z)</option>
+        </select>
+      </div>
+      <div class="ctrl" style="grid-column: span 4;">
+        <label for="minStars">Minimal bintang</label>
+        <select id="minStars">
+          <option value="0">Semua</option>
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★</option>
+          <option value="3">★★★</option>
+          <option value="2">★★</option>
+          <option value="1">★</option>
+        </select>
+      </div>
+      <div class="ctrl" style="grid-column: span 12;">
+        <div class="amenities" id="amenities"></div>
+      </div>
+    </section>
+
+    <section class="resultbar">
+      <div><strong id="count">0</strong> hotel ditemukan <span class="subtle" id="activeFilters"></span></div>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite" aria-busy="false"></section>
+
+    <footer>
+      <div>©️ <span id="year"></span> BPJS Ketenagakerjaan Yogyakarta</div>
+    </footer>
+  </main>
+
+  <dialog class="modal" id="modal">
+    <div class="modal__head">
+      <div style="display:flex;flex-direction:column">
+        <span class="kicker">Detail hotel</span>
+        <strong id="m_name"></strong>
+      </div>
+      <button class="btn" onclick="modal.close()">Tutup</button>
+    </div>
+    <div class="modal__body" id="m_body"></div>
+  </dialog>
+
+  <script>
+    // ========= DATA: sudah termasuk alamat (addr) & koordinat (loc) =========
+    const DATA = [
+      {n:'Royal Malioboro by Aston', area:'DALAM KOTA', rate:4.9, tags:['hotel'], pop:5282, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1d/be/97/5a/royal-malioboro-yogyakarta.jpg?w=1400&h=800&s=1", addr:'Jl. Ps. Kembang No.29, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.790029361426567, 110.36443935325818'},
+      {n:'Hotel Crystal Lotus', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:8259, img:"https://pix8.agoda.net/hotelImages/583652/0/968aa8c51340b3b9f1545d0846b05036.jpg?ce=2&s=1024x", addr:'Jl. Magelang No.5, Kutu Dukuh, Sinduadi, Mlati, Sleman 55284', loc:'-7.759394054099984, 110.36257702463386'},
+      {n:'Riss Hotel Malioboro', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:4697, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2020/03/horison-ultima-7.jpg", addr:'Jl. Gowongan Kidul, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.787616925287349, 110.36449065396273'},
+      {n:'FORRIZ Hotel Yogyakarta', area:'DALAM KOTA', rate:4.4, tags:['hotel'], pop:4437, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2020/03/forriz-2.jpg", addr:'Jl. HOS Cokroaminoto No.60, Pakuncen, Wirobrajan, Yogyakarta 55253', loc:'-7.801703728505626, 110.35087175396006'},
+      {n:'Grand Tjokro Yogyakarta', area:'DALAM KOTA', rate:4.4, tags:['hotel'], pop:5803, img:"https://backend.sas-hospitality.com//uploads/artikel/familyhoteldiyogya.jpeg", addr:'Jl. Gejayan No.37, Caturtunggal, Depok, Sleman 55281', loc:'-7.7696222302607, 110.38493966854666'},
+      {n:'KHAS Malioboro Hotel', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:4013, img:"https://cms.hig.id//upload/cms/DEPAN.jpg", addr:'Jl. Gadean No.3, Ngupasan, Gondomanan, Yogyakarta 55122', loc:'-7.797377190768085, 110.36585420955911'},
+      {n:'Kimaya Sudirman Yogyakarta', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:7066, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2b/9b/e7/88/caption.jpg?w=900&h=-1&s=1", addr:'Jl. Jend. Sudirman No.89, Terban, Gondokusuman, Yogyakarta 55223', loc:'-7.7810335908352765, 110.37406208288869'},
+      {n:'Royal Ambarrukmo Yogyakarta', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:12363, img:"https://imgx.parapuan.co/crop/0x31:1024x688/752x408/filters:format(webp)/photo/2022/12/07/royal-ambarrukmo-yogyakarta-temp-20221207114038.jpg", addr:'Jl. Laksda Adisucipto KM 6.5, Caturtunggal, Depok, Sleman 55281', loc:'-7.782630638966634, 110.40827745396008'},
+      {n:'Grand Inna Malioboro', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:6735, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2022/03/EXTERIOR-1-6.jpg", addr:'Jl. Malioboro No.60, Suryatmajan, Danurejan, Yogyakarta 55213', loc:'-7.791330928020807, 110.36683393822998'},
+      {n:'The Alana Hotel & Conference Center Malioboro', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:8142, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/259490050.jpg?k=e41e6be3c0c8ae9ccdf4860824d3eb105827ca6122a55d162a26c1691d55c37f&o=&hp=1", addr:'Jl. Mayjen Sutoyo No.52, Mantrijeron, Yogyakarta 55143', loc:'-7.818158518116107, 110.36660252463524'},
+      {n:'Hotel Tentrem Yogyakarta', area:'DALAM KOTA', rate:4.8, tags:['hotel'], pop:15429, img:"https://images.trvl-media.com/lodging/7000000/6180000/6171600/6171593/31881e53.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill", addr:'Jl. P. Mangkubumi No.72A, Gowongan, Jetis, Yogyakarta 55233', loc:'-7.776702923394246, 110.36768396465462'},
+      {n:'Melia Purosani Yogyakarta', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:12188, img:"https://jogjis.jogjaprov.go.id/jogjis/files/content/a814503d2adde76abca4c2b95bb675f8.jpg", addr:'Jl. Suryotomo No.31, Suryatmajan, Danurejan, Yogyakarta 55213', loc:'-7.796009778799016, 110.36906318288865'},
+      {n:'Harper Malioboro Yogyakarta', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:8741, img:"https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/10007197-2362x1574-FIT_AND_TRIM-6b63a9c68d1bee1f4dbc82002c9f410f.jpeg?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Mangkubumi No.52, Gowongan, Jetis, Yogyakarta 55233', loc:'-7.7803130557528185, 110.36713743976022'},
+      {n:'Aston Imperium Yogyakarta', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:5398, img:"https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN274kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/20088004-5dc00e5573477d0f17f0687d45066aa9.jpeg?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Urip Sumoharjo No.137, Klitren, Gondokusuman, Yogyakarta 55222', loc:'-7.781804757809816, 110.39061032463394'},
+      {n:'The Phoenix Hotel Yogyakarta', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:10986, img:"https://www.ahstatic.com/photos/5451_ho_00_p_1024x768.jpg", addr:'Jl. Jend. Sudirman No.9, Gowongan, Jetis, Yogyakarta 55233', loc:'-7.78193388991441, 110.36768469230014'},
+      {n:'Swiss-Belboutique Yogyakarta', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:9423, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/373172034.jpg?k=4b554020af8a4b9983cce8d69a4e39176c1fa888f9eb60a52b9335cb99d499c2&o=&hp=1", addr:'Jl. Jend. Sudirman No.69, Terban, Gondokusuman, Yogyakarta 55223', loc:'-7.783572787950457, 110.37442299538126'},
+      {n:'GAIA Cosmo Hotel Yogyakarta', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:6372, img:"https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/10014944-2048x1154-FIT_AND_TRIM-22af7e25f66dbfc51d578060561741d6.jpeg?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Ipda Tut Harsono No.16, Muja Muju, Umbulharjo, Yogyakarta 55165', loc:'-7.809620062035561, 110.38883669538123'},
+      {n:'Grand Senyum Hotel Yogyakarta', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:4187, img:"https://images.trvl-media.com/lodging/33000000/32140000/32133400/32133316/3a406c18.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill", addr:'Jl. P. Senopati No.17, Ngupasan, Gondomanan, Yogyakarta 55122', loc:'-7.800564966379353, 110.36717399538122'},
+      {n:'Hotel Neo Malioboro', area:'DALAM KOTA', rate:4.4, tags:['hotel'], pop:8569, img:"https://labirutour.com/wp-content/uploads/2016/11/hotel-neo-malioboro.jpg", addr:'Jl. Pasar Kembang No.21, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.790325636372305, 110.36487153822995'},
+      {n:'Ibis Styles Yogyakarta', area:'DALAM KOTA', rate:4.3, tags:['hotel'], pop:7341, img:"https://www.ahstatic.com/photos/7460_ho_00_p_1024x768.jpg", addr:'Jl. Dagen No.109, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.792900402956416, 110.36366379538125'},
+      {n:'POP! Hotel Sangaji Yogyakarta', area:'DALAM KOTA', rate:4.2, tags:['hotel'], pop:6892, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-mobile/tix-hotel/images-web/2020/10/28/7e9bf069-36b9-447f-a69e-b3579c5e08fc-1603878496165-7a15da3eebea460ff4464cb8af29fceb.jpg", addr:'Jl. A.M. Sangaji No.18, Cokrodiningratan, Jetis, Yogyakarta 55233', loc:'-7.777709950936771, 110.36567546677817'},
+      {n:'favehotel Malioboro', area:'DALAM KOTA', rate:4.3, tags:['hotel'], pop:5774, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2021/03/fave-hotel-kusumanegara-5.jpg", addr:'Jl. I Dewa Nyoman Oka No.30, Pringgokusuman, Gedong Tengen, Yogyakarta 55272', loc:'-7.793770901886529, 110.36084718288863'},
+      {n:'Hotel Dafam Fortuna Malioboro', area:'DALAM KOTA', rate:4.4, tags:['hotel'], pop:4328, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2017/02/dafam-fortuna-6-1.jpg", addr:'Jl. Dagen No.60, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.792455870299678, 110.36601603822993'},
+      {n:'Hotel Ibis Malioboro', area:'DALAM KOTA', rate:4.3, tags:['hotel'], pop:8120, img:"https://cdn.1001malam.com/uploads/hotels/ibismalioboro_swimmingpool_1274786.jpg", addr:'Jl. Malioboro No.52-58, Suryatmajan, Danurejan, Yogyakarta 55213', loc:'-7.791703389590851, 110.36623599538126'},
+      {n:'Pesonna Malioboro Yogyakarta', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:4921, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2017/11/pesonna-malioboro-1.jpg", addr:'Jl. Gadean No.3, Ngupasan, Gondomanan, Yogyakarta 55122', loc:'-7.79760040393006, 110.36589775396007'},
+      {n:'Hotel Amaris Malioboro', area:'DALAM KOTA', rate:4.2, tags:['hotel'], pop:3659, img:"https://production-santika.ap-south-1.linodeobjects.com/media/images/hotel/5ba8a27a-9587-4c25-9870-8a037c4bedbb.png", addr:'Jl. Pajeksan No.10, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.791913079513784, 110.36526049538122'},
+      {n:'Hotel Grand Zuri Malioboro', area:'DALAM KOTA', rate:4.4, tags:['hotel'], pop:5390, img:"https://www.zhmhotels.com/wp-content/uploads/sites/33/2016/03/GZ-Jogja_Edit-1-1801x1080.jpg", addr:'Jl. Mangkubumi No.18, Gowongan, Jetis, Yogyakarta 55233', loc:'-7.783412975613744, 110.36724209538121'},
+      {n:'Horison Ultima Riss Malioboro', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:4782, img:"https://pix10.agoda.net/hotelImages/544766/-1/76ddfddf0691a2a787944a6fba24839a.jpg?ca=16&ce=1&s=1024x768", addr:'Jl. Gowongan Kidul, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.787581986690856, 110.36450072465469'},
+      {n:'Ayaartta Hotel Malioboro', area:'DALAM KOTA', rate:4.3, tags:['hotel'], pop:3527, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-mobile/tix-hotel/images-web/2020/10/29/e0d394dc-0a08-475b-844d-c7086fc6a254-1603910326223-0110596173048ac65919cdde4ec49dcb.jpg", addr:'Jl. KH. Wahid Hasyim No.41, Ngupasan, Gondomanan, Yogyakarta 55122', loc:'-7.802090910124356, 110.36630942465459'},
+      {n:'Whiz Hotel Malioboro', area:'DALAM KOTA', rate:4.2, tags:['hotel'], pop:6249, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/63219841.jpg?k=9c29e019d526440b95e316c14862b5519af34a7c7160dc68d334629dc301409f&o=&hp=1", addr:'Jl. Dagen No.8, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.792552091479612, 110.36582975396006'},
+      {n:'PULANG ke UTTARA', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:1291, img:"https://media-cdn.tripadvisor.com/media/photo-s/1a/87/1f/2b/pulang-ke-uttara.jpg", addr:'Jl. Kaliurang Km 5,5, Caturtunggal, Depok, Sleman 55281', loc:'-7.7607473580355635, 110.3836511246339'},
+      {n:'The Malioboro Hotel & Conference Center', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:838, img:"https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN274kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/20077728-de27f7ac5631312a3c44e3f3fc44cc16.jpeg?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Suryotomo No.31, Suryatmajan, Danurejan, Yogyakarta 55213', loc:'-7.7960318263650155, 110.36905072465461'},
+      {n:'éL Hotel Yogyakarta Malioboro', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:3569, img:"https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20018650-84b9d22fdf235fad0357d6521993fd68.jpeg?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Dagen No.06, Sosromenduran, Gedong Tengen, Yogyakarta 55271', loc:'-7.792313852871088, 110.36601022463392'},
+      {n:'GRAMM HOTEL by Ambarrukmo Yogyakarta', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:4714, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/282887995.jpg?k=668e79c38dc197eef5f42b3f21ef57536451e0df6054938b5ec5cf6ad50a20d4&o=&hp=1", addr:'Jl. Laksda Adisucipto No.80, Ambarukmo, Caturtunggal, Depok, Sleman 55281', loc:'-7.783927310193889, 110.40254899538121'},
+      {n:'Aston Gejayan Yogyakarta Hotel & Conference Center', area:'DALAM KOTA', rate:4.9, tags:['hotel'], pop:421, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-mobile/tix-hotel/images-web/2025/03/28/2f9831fe-72c5-4d21-82b7-6a5653cfec58-1743155701575-51fd8dd3411478d7267096aa983519ae.jpg", addr:'Jl. Laksda Adisucipto No.32-34, Demangan, Gondokusuman, Yogyakarta 55221', loc:'-7.782034226104009, 110.3939695539601'},
+      {n:'Grand Keisha Yogyakarta', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:6863, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/10/3d/a1/48/swimming-pool.jpg?w=900&h=500&s=1", addr:'Jl. Laksda Adisucipto No.148, Caturtunggal, Depok, Sleman 55281', loc:'-7.779463284557645, 110.40701422463387'},
+      {n:'Gaia Cosmo Hotel', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:5894, img:"https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/10014944-2048x1154-FIT_AND_TRIM-22af7e25f66dbfc51d578060561741d6.jpeg?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Ipda Tut Harsono No.16, Muja Muju, Umbulharjo, Yogyakarta 55165', loc:'-7.809609945842286, 110.3888476828886'},
+      {n:'Next Hotel Yogyakarta', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:1266, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/359423795.jpg?k=412ae896eb93dbb1c7892bb4040acb0eb15ccbf43fd4b57fae9eb7431a526951&o=&hp=1", addr:'Jl. Laksda Adisucipto No.32-34, Demangan, Gondokusuman, Yogyakarta 55221', loc:'-7.782068287583248, 110.39395725396006'},
+      {n:'Mustika Yogyakarta Resort & Spa', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:8190, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/468125402.jpg?k=d33e0e4eba9402697f803cdbcf370f6e291d422bd9f9419decd4c4dd3db648a5&o=&hp=1", addr:'Jl. Ringroad Timur No.1, Banguntapan, Bantul 55198', loc:'-7.826330846596874, 110.39869482465468'},
+      {n:'KJ Hotel Yogyakarta', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:5001, img:"https://visitingjogja.jogjaprov.go.id/wp-content/uploads/2020/03/kj-hotel-6.jpg", addr:'Jl. Parangtritis No.120, Mantrijeron, Yogyakarta 55143', loc:'-7.817635969047875, 110.36655232465465'},
+      {n:'The Manohara Hotel Yogyakarta', area:'DALAM KOTA', rate:4.7, tags:['hotel'], pop:2317, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/299584154.jpg?k=56eb2e9b93a019fce57a51153d712fb1cb3647886f50f254f18f8d72b3115494&o=&hp=1", addr:'Jl. Colombo No.1, Depok, Sleman 55281', loc:'-7.767831133835731, 110.38453675396007'},
+      {n:'Swiss-Belboutique Yogyakarta', area:'DALAM KOTA', rate:4.8, tags:['hotel'], pop:9094, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/373172034.jpg?k=4b554020af8a4b9983cce8d69a4e39176c1fa888f9eb60a52b9335cb99d499c2&o=&hp=1", addr:'Jl. Jend. Sudirman No.69, Terban, Yogyakarta 55223', loc:'-7.783572787950457, 110.37442299538126'},
+      {n:'Gallery Prawirotaman Hotel', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:3728, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/05/dd/0a/79/galery-prawirotaman-hotel.jpg?w=900&h=-1&s=1", addr:'Jl. Prawirotaman II No.629, Brontokusuman, Mergangsan, Yogyakarta 55153', loc:'-7.816682334764305, 110.36790559538125'},
+      {n:'Royal Darmo Malioboro Hotel', area:'DALAM KOTA', rate:4.5, tags:['hotel'], pop:4244, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-dskt/tix-hotel/images-web/2021/01/05/060be89e-9a03-4378-a755-8ffbc171277e-1609836324752-c7aa266bf913e667afff0e9ffda366af.jpg", addr:'Jl. Kemetiran Kidul No.55, Ngupasan, Gondomanan, Yogyakarta 55122', loc:'-7.797473326645097, 110.36613388288868'},
+      {n:'Tirtodipuran Hotel Malioboro By Natts Hospitality Indonesia', area:'DALAM KOTA', rate:4.6, tags:['hotel'], pop:126, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-mobile/tix-hotel/images-web/2023/04/15/403ffd60-f0b2-416e-b409-331bf08ee935-1681533732266-c7602686d9e2949fac4366b5501cd3f5.jpg", addr:'Jl. Tirtodipuran No.30, Mantrijeron, Yogyakarta 55143', loc:'-7.817934523108038, 110.36290572465463'},
+      {n:'Ros-In Hotel', area:'SELATAN', rate:4.4, tags:['hotel'], pop:4478, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/41384690.jpg?k=19346e683625f6030b2ada08b62f884617dcf3c84d74c22d29403caaa0819bd8&o=&hp=1", addr:'Jl. Parangtritis No.120, Mantrijeron, Yogyakarta 55143', loc:'-7.817540400561011, 110.36657648288867'},
+      {n:'Astuti Gallery Homestay', area:'SELATAN', rate:4.4, tags:['hotel'], pop:384, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/474486001.jpg?k=d08e8e3e3a7a01cb39c25d0d012cc5ac050d4503855295da85b091516b939aa9&o=&hp=1", addr:'Jl. Tegaltamu No.18, Tamanan, Banguntapan, Bantul 55191', loc:'-7.843959705486222, 110.40276219538127'},
+      {n:'dOmah Yogya Hotel', area:'SELATAN', rate:4.5, tags:['hotel'], pop:1057, img:"https://images.trvl-media.com/lodging/4000000/3990000/3981600/3981581/b206645a.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill", addr:'Jl. Parangtritis Km 8.5, Tembi, Timbulharjo, Sewon, Bantul 55186', loc:'-7.852070867251822, 110.35159065396007'},
+      {n:'The Lavana Greenkhaza Villa Jogja', area:'SELATAN', rate:4.0, tags:['hotel'], pop:4, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-dskt/tix-hotel/images-web/2022/10/12/b8645192-3144-4ecc-9798-a2cfdc44161a-1665542161739-9ae21bbec9a9e10a8fdae4bfb4fc92a8.jpg", addr:'Jl. Imogiri Barat KM 7, Kasihan, Bantul 55183', loc:'-7.835927917057351, 110.33763095396005'},
+      {n:'Queen Of The South Beach Resort & Hotel', area:'SELATAN', rate:4.4, tags:['hotel'], pop:6428, img:"https://asset.kompas.com/crops/kA2k4ygmek9OF97Daq1cfpml9U8=/36x0:946x607/1200x800/data/photo/2020/11/04/5fa215e778662.jpeg", addr:'Parangrejo, Purwosari, Gunungkidul, DIY', loc:'-8.031680421633418, 110.31893002465466'},
+      {n:'Lafayette Boutique Hotel Yogyakarta', area:'UTARA', rate:4.6, tags:['hotel'], pop:3491, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-mobile/tix-hotel/images-web/2020/10/31/8dde3a76-1438-49dd-b1e7-fc1223222ecc-1604131251791-a7c860122c7256ab87541bb0b3aebb64.jpg", addr:'Jl. Ringroad Utara No.409, Caturtunggal, Depok, Sleman 55283', loc:'-7.756965010557855, 110.3998270246339'},
+      {n:'Hotel Alana Yogyakarta Hotel & Convention Center', area:'UTARA', rate:4.8, tags:['hotel'], pop:26611, img:"https://images.archipelagohotels.com/alanahotels/Images/v1/TheAlanaYogyakarta/Gallery/FACADEMICC.jpg", addr:'Jl. Palagan Tentara Pelajar No.98, Sariharjo, Ngaglik, Sleman 55581', loc:'-7.735393888236546, 110.37311575396009'},
+      {n:'The Kharma Villas Yogyakarta', area:'UTARA', rate:4.6, tags:['hotel'], pop:1328, img:"https://jogjis.jogjaprov.go.id/jogjis/files/content/968304f88f76b5a57a90cee7dce07328.jpg", addr:'Jl. Palagan Tentara Pelajar, Sariharjo, Ngaglik, Sleman 55581', loc:'-7.733771816021477, 110.37478759538128'},
+      {n:'Hyatt Regency Yogyakarta', area:'UTARA', rate:4.7, tags:['hotel'], pop:9464, img:"https://assets.hyatt.com/content/dam/hyatt/hyattdam/images/2015/09/05/1755/Hyatt-Regency-Yogyakarta-P031-Main-Photo.jpg/Hyatt-Regency-Yogyakarta-P031-Main-Photo.4x3.jpg", addr:'Jl. Palagan Tentara Pelajar KM 7, Ngaglik, Sleman 55581', loc:'-7.749410027010526, 110.36964862463386'},
+      {n:'K Hotel Kaliurang', area:'UTARA', rate:4.4, tags:['hotel'], pop:3175, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/153855927.jpg?k=8da84ef1086d4f83b47b69a99b0826df6b73659a98f6ab1226f694bebf0fb61f&o=&hp=1", addr:'Jl. Boyong No.99, Kaliurang Barat, Hargobinangun, Pakem, Sleman 55582', loc:'-7.598116069897589, 110.4259917953813'},
+      {n:'Griya Persada Convention Hotel & Resort Kaliurang', area:'UTARA', rate:4.8, tags:['hotel'], pop:3302, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-dskt/tix-hotel/images-web/2020/10/31/539f9d73-aaec-4db2-b1fb-c4e462792149-1604146279758-41cef10cc560b77ac1b3f6ce54fdf119.jpg", addr:'Jl. Boyong No.99, Kaliurang Barat, Hargobinangun, Pakem, Sleman 55582', loc:'-7.600008986806419, 110.42322662463385'},
+      {n:'Joglo Plawang Boutique Villa & Resort, Spa', area:'UTARA', rate:4.4, tags:['hotel'], pop:726, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/236674383.jpg?k=76cc5045c1eb4f5f20946483aa185686d42f3d030b4de10a60cfc89e9e72a7a5&o=&hp=1", addr:'Jl. Plawang No.1, Harjobinangun, Pakem, Sleman 55582', loc:'-7.62370120664248, 110.39777272465465'},
+      {n:'Garrya Bianti Yogyakarta', area:'UTARA', rate:4.9, tags:['hotel'], pop:686, img:"https://www.ahstatic.com/photos/c270_ho_00_p_1024x768.jpg", addr:'Jl. Palagan Tentara Pelajar KM 13,5, Sariharjo, Ngaglik, Sleman 55581', loc:'-7.700302936375953, 110.37291173822999'},
+      {n:'Wyndham Garden Yogyakarta Conference Hotel & Action Park', area:'UTARA', rate:4.5, tags:['hotel'], pop:161, img:"https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN274kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/20083311-4672dfd531a0846f10ed0a79517d2251.png?tr=q-80,c-at_max,w-740,h-500&_src=imagekit", addr:'Jl. Magelang Km 6 No.145, Kutu Asem, Sinduadi, Mlati, Sleman 55284', loc:'-7.752063318992585, 110.35977449538124'},
+      {n:'Ramada by Wyndham Yogyakarta', area:'UTARA', rate:4.5, tags:['hotel'], pop:583, img:"https://www.wyndhamhotels.com/content/dam/property-images/en-us/ra/id/others/yogyakarta/57484/57484_exterior_view_front_1.jpg", addr:'Jl. Ring Road Utara No.53, Condongcatur, Depok, Sleman 55281', loc:'-7.755630165631113, 110.40859322463395'},
+      {n:'Khayangan Resort', area:'UTARA', rate:4.2, tags:['hotel'], pop:1109, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-dskt/tix-hotel/images-web/2020/10/31/560b841c-a168-472f-be09-febcd39726c8-1604151092597-b344efde94be2385891e577cf5512f55.jpg", addr:'Desa Wisata Tembi, Timbulharjo, Sewon, Bantul 55186', loc:'-7.846930944454861, 110.35233985396007'},
+      {n:'Aveon Hotel Yogyakarta by Daphna Management', area:'UTARA', rate:4.5, tags:['hotel'], pop:2105, img:"https://aveonhotelyogyakarta.com/wp-content/uploads/2025/04/IMG_5460-dasarb-scaled.jpg", addr:'Jl. Magelang No.40, Kricak, Tegalrejo, Yogyakarta 55242', loc:'-7.775678023455691, 110.35571872465462'},
+      {n:'INNSiDE By Melia Yogyakarta', area:'UTARA', rate:4.7, tags:['hotel'], pop:8528, img:"https://dam.melia.com/melia/accounts/f8/4000018/projects/127/assets/29/16060/0b9c800f952e1143d19acad7bd53f25f-1600343787.jpg?fp=1771.5,1417.5&width=2000&height=1600", addr:'Jl. Laksda Adisucipto KM 8, Maguwoharjo, Depok, Sleman 55282', loc:'-7.782276297102479, 110.42085375396005'},
+      {n:'Sofia Boutique Residence', area:'UTARA', rate:4.6, tags:['hotel'], pop:929, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/147516054.jpg?k=b018fc53d1a7ff2daaa6882516b40d70bfc7981627961982487898162f11b541&o=&hp=1", addr:'Jl. DI Panjaitan No.27, Mantrijeron, Yogyakarta 55143', loc:'-7.817406229945468, 110.3674183246339'},
+      {n:'HOTEL INDOLUXE JOGJAKARTA', area:'UTARA', rate:4.5, tags:['hotel'], pop:6157, img:"https://media-cdn.tripadvisor.com/media/photo-s/10/0c/a1/eb/indoluxe-hotel-jogjakarta.jpg", addr:'Jl. Palagan Tentara Pelajar No.106, Sariharjo, Ngaglik, Sleman 55581', loc:'-7.732964983316828, 110.37405118288862'},
+      {n:'The Cangkringan Jogja Villa & hotel', area:'UTARA', rate:4.4, tags:['hotel'], pop:204, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/e3/ea/96/cangkringan-jogja-villas.jpg?w=900&h=500&s=1", addr:'Jl. Raya Merapi Golf, Umbulharjo, Cangkringan, Sleman 55583', loc:'-7.640254078955909, 110.4491936828886'},
+      {n:'The New Atrium Hotel Yogyakarta', area:'UTARA', rate:4.5, tags:['hotel'], pop:3898, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0a/7b/eb/db/the-atrium-hotel-resort.jpg?w=900&h=500&s=1", addr:'Jl. Laksda Adisucipto No.157, Demangan, Gondokusuman, Yogyakarta 55223', loc:'-7.782404560251003, 110.39577012463387'},
+      {n:'The Westlake Resort Jogja', area:'BARAT', rate:4.7, tags:['hotel'], pop:9225, img:"https://images.getaroom-cdn.com/image/upload/s--q26-noIr--/c_limit,e_improve,fl_lossy.immutable_cache,h_940,q_auto:good,w_940/v1666891969/4143522ceb6ec6b23d8767ecf23ee066e858d98c?_a=BACAEuDL&atc=e7cd1cfa", addr:'782Q+H6M, Jalan Ringroad Barat Bedog, Baturan, Trihanggo, Gamping, Sleman Regency, Special Region of Yogyakarta 55291', loc:'-7.747458791892152, 110.33756190653375'},
+      {n:'Swiss-belhotel Airport Yogyakarta', area:'BARAT', rate:4.9, tags:['hotel'], pop:883, img:"https://images.getaroom-cdn.com/image/upload/s---BLuEIUI--/c_limit,e_improve,fl_lossy.immutable_cache,h_940,q_auto:good,w_940/v1714375922/9cce650ded115af92eb77ca0f102b186513819cf?_a=BACAEuDL&atc=e7cd1cfa", addr:'Weton, Kebonrejo, Kec. Temon, Kabupaten Kulon Progo, Daerah Istimewa Yogyakarta 55654', loc:'-7.886808735750302, 110.06986670929582'},
+      {n:'Novotel Yogyakarta Airport Kulon Progo', area:'BARAT', rate:4.8, tags:['hotel'], pop:1780, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/500155552.jpg?k=83f03c166b306efa5cb2cec9fe53a47b843ecdbd7bec756fc9d29a225b6cf9ac&o=", addr:'Jl. Wates - Purworejo No.KM 10 95, Seling, Temon Kulon, Kec. Temon, Kabupaten Kulon Progo, Daerah Istimewa Yogyakarta 55654', loc:'-7.886717873988693, 110.07270642341538'},
+      {n:'Morazen Airport Yogyakarta', area:'BARAT', rate:4.4, tags:['hotel'], pop:743, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/544286156.jpg?k=0b2e823920e78576067afaf207c4c23ec06a624b868bfeb141dcacf32a344e4d&o=", addr:'Jalan Nasional III Yogyakarta - Purworejo KM 41.5, KM 41.5, Kec. Temon, Kabupaten Kulon Progo, Daerah Istimewa Yogyakarta 55654', loc:'-7.88582485107709, 110.06551874676025'},
+      {n:'Hotel Satoria Yogyakarta Adisucipto', area:'TIMUR', rate:4.8, tags:['hotel'], pop:1615, img:"https://s-light.tiket.photos/t/01E25EBZS3W0FY9GTG6C42E1SE/t_htl-dskt/tix-hotel/images-web/2020/10/28/d58f67ca-afe1-489a-ae44-9a72269230c7-1603892850844-0991efe3b7fcfc701221936c2b21c960.jpg", addr:'Jl. Laksda Adisucipto No.Km. 8, Kalongan, Maguwoharjo, Sleman, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55282', loc:'-7.783579805324133, 110.42205516516651'},
+      {n:'Platinum Adisucipto Hotel & Conference Center', area:'TIMUR', rate:4.7, tags:['hotel'], pop:9156, img:"https://www.mandirikartukredit.com/uploads/media/merchant/rcc-jawa-tengah/hotel/Platinum-Adisucipto.jpg", addr:'Jl. Raya Solo - Yogyakarta No.28 10th floor, Sambelegi Kidul, Maguwoharjo, Depok, Sleman Regency, Special Region of Yogyakarta 55282', loc:'-7.783127214725033, 110.43718740813448'},
+      {n:'INNSiDE By Melia Yogyakarta', area:'TIMUR', rate:4.7, tags:['hotel'], pop:8528, img:"https://dam.melia.com/melia/accounts/f8/4000018/projects/127/assets/29/16060/0b9c800f952e1143d19acad7bd53f25f-1600343787.jpg?fp=1771.5,1417.5&width=2000&height=1600", addr:'Jl. Ring Road Utara, Meguwo, Maguwoharjo, Kec. Depok, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55282', loc:'-7.766854206857071, 110.4319630757172'},
+      {n:'Amaranta Prambanan Yogyakarta', area:'TIMUR', rate:4.8, tags:['hotel'], pop:1780, img:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/52/a6/09/amaranta-prambanan-hotel.jpg?w=500&h=400&s=1", addr:'Jalan Dawangsari No.45, RT.02/RW.03, Dowang Sari, Sambirejo, Kec. Prambanan, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55572', loc:'-7.768713910734747, 110.50571122862279'},
+      {n:'Grand Diamond Hotel Yogyakarta (Formerly Grand Quality Hotel Yogyakarta)', area:'TIMUR', rate:4.4, tags:['hotel'], pop:4269, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/721028004.jpg?k=1973097ad40555928ac9380b9f24f25d35132088ece6dbd7a5bedf00e9a64eb9&o=&hp=1", addr:'Jl. Laksda Adisucipto No.48, Nayan, Maguwoharjo, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281', loc:'-7.782738154910225, 110.42327014712323'},
+      {n:'The Jayakarta Hotel & Spa Yogyakarta', area:'TIMUR', rate:4.3, tags:['hotel'], pop:4096, img:"https://cf.bstatic.com/xdata/images/hotel/max1024x768/281446037.jpg?k=db58928db8cff1e7728d1e7fa384ea73e82ae1343b0b96b98768f572f883e517&o=&hp=1", addr:'Depan Transmart, Jl. Raya Solo - Yogyakarta No.km, 8, Kalongan, Maguwoharjo, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55282', loc:'-7.783742872705299, 110.41970059580113'},
+    ];
+
+    // ========= Konstanta & helper UI =========
+    const AMENITY_LABEL = { wifi:"Wi-Fi", pool:"Kolam", breakfast:"Sarapan", parking:"Parkir", spa:"Spa", ac:"AC", gym:"Gym" };
+    const rateToStars = r => r>=4.6?5 : r>=4.1?4 : r>=3.6?3 : r>=3.1?2 : 1;
+    const el = s => document.querySelector(s);
+    const byId = id => document.getElementById(id);
+    const unique = a => [...new Set(a)];
+    const fallbackImg = name => `https://source.unsplash.com/600x400/?${encodeURIComponent(name+' hotel yogyakarta')}`;
+
+    // ========= Helper Google Maps =========
+    function parseLatLng(s){
+      const m = String(s||"").trim().match(/^(-?\d+(\.\d+)?)[,\s]+(-?\d+(\.\d+)?)$/);
+      if (!m) return null;
+      const lat = parseFloat(m[1]), lng = parseFloat(m[3]);
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+      return {lat, lng};
+    }
+    function mapUrlByName(name, area='Yogyakarta'){
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${area}`)}`;
+    }
+    function mapUrl(h){
+      if (h.loc){
+        const c = parseLatLng(h.loc);
+        if (c) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${h.name} @ ${c.lat},${c.lng}`)}`;
+      }
+      return mapUrlByName(h.name, h.area || 'Yogyakarta');
+    }
+
+    // ========= Normalisasi data untuk UI =========
+    const HOTELS = DATA.map((d,i)=>({
+      id: i+1,
+      name: d.n,
+      area: d.area,
+      stars: rateToStars(d.rate ?? 0),
+      rating: d.rate ?? null,
+      reviews: d.pop ?? 0,
+      amenities: (d.tags||[]).filter(t=>t!=='hotel' && AMENITY_LABEL[t]),
+      img: d.img || '',
+      addr: d.addr || '',
+      loc:  d.loc  || ''
+    }));
+
+    // ========= State & filter =========
+    const state = { q:"", area:"", sort:"pop-desc", minStars:0, amenities: new Set() };
+
+    function syncAreaOptions(){
+      const areas = unique(HOTELS.map(h=>h.area)).sort((a,b)=>a.localeCompare(b));
+      byId('area').innerHTML = '<option value="">Semua area</option>' + areas.map(a=>`<option value="${a}">${a}</option>`).join('');
+    }
+    function syncAmenities(){
+      const all = unique(HOTELS.flatMap(h=>h.amenities)).filter(a=>AMENITY_LABEL[a]);
+      const wrap = byId('amenities');
+      wrap.innerHTML = all.map(a=>`
+        <label class="chip" data-val="${a}">
+          <input type="checkbox" value="${a}" />
+          <span>${AMENITY_LABEL[a]}</span>
+        </label>
+      `).join('');
+      wrap.querySelectorAll('.chip').forEach(ch=>{
+        const v = ch.dataset.val;
+        if (state.amenities.has(v)) ch.classList.add('active');
+        ch.addEventListener('click', ()=>{
+          ch.classList.toggle('active');
+          state.amenities.has(v) ? state.amenities.delete(v) : state.amenities.add(v);
+          render();
+        });
+      });
+    }
+
+    function applyFilters(list){
+      return list.filter(h=>{
+        if (state.q){
+          const q = state.q.toLowerCase();
+          if (!(h.name+" "+h.area).toLowerCase().includes(q)) return false;
+        }
+        if (state.area && h.area!==state.area) return false;
+        if (state.minStars && h.stars < state.minStars) return false;
+        if (state.amenities.size){
+          for (const need of state.amenities) if (!h.amenities.includes(need)) return false;
+        }
+        return true;
+      });
+    }
+    function applySort(list){
+      const [key,dir] = state.sort.split('-');
+      const sgn = dir==='asc'?1:-1;
+      const score = {
+        'pop': h=>h.reviews||0,
+        'rating': h=>h.rating||0,
+        'stars': h=>h.stars||0,
+        'name': h=>h.name.toLowerCase()
+      }[key] || (h=>h.reviews||0);
+      return list.slice().sort((a,b)=>{
+        const A=score(a), B=score(b);
+        return (A>B?1:A<B?-1:0)*sgn;
+      });
+    }
+    function activeFilterText(){
+      const bits=[];
+      if (state.area) bits.push(`Area: ${state.area}`);
+      if (state.minStars) bits.push(`≥ ${state.minStars}★`);
+      if (state.amenities.size) bits.push("Fasilitas: "+[...state.amenities].map(a=>AMENITY_LABEL[a]||a).join(", "));
+      return bits.length ? "• "+bits.join(" • ") : "";
+    }
+
+    // ========= Render =========
+    function render(){
+      const grid = byId('grid');
+      const list = applySort(applyFilters(HOTELS));
+      byId('count').textContent = list.length;
+      byId('activeFilters').textContent = activeFilterText();
+
+      if (!list.length){
+        grid.innerHTML = `<div class="empty" style="grid-column: span 12">Tidak ada hasil.</div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(h=>{
+        const img = h.img || fallbackImg(h.name);
+        return `
+          <article class="card" data-id="${h.id}" aria-label="${h.name}">
+            <div class="media" style="background:#dfe7ef url('${img}') center/cover no-repeat;">
+              <span class="badge">${h.stars}★ • ${h.area}</span>
+            </div>
+            <div class="content">
+              <div class="title">
+                <h3>${h.name}</h3>
+                <div class="stars" aria-label="Bintang">${"★".repeat(h.stars)}</div>
+              </div>
+              <div class="meta">
+                <span class="rating">⭐ ${h.rating ?? "-"} <span class="subtle">(${(h.reviews||0).toLocaleString("id-ID")} ulasan)</span></span>
+              </div>
+              <div class="tags">${h.amenities.map(a=>`<span class="tag">${AMENITY_LABEL[a]||a}</span>`).join("")}</div>
+            </div>
+            <div class="actions">
+              <button class="btn ghost" onclick="openDetail(${h.id})">Detail</button>
+              <a class="btn brand" href="${mapUrl(h)}" target="_blank" rel="noopener">Buka Peta</a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function openDetail(id){
+      const h = HOTELS.find(x=>x.id===id);
+      if (!h) return;
+      byId('m_name').textContent = h.name;
+      byId('m_body').innerHTML = `
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="pill">Area: <strong>&nbsp;${h.area}</strong></div>
+          <div class="pill">Bintang: <strong>&nbsp;${h.stars}★</strong></div>
+          <div class="pill">Rating: <strong>&nbsp;${h.rating ?? "-"}</strong></div>
+          <div class="pill">Ulasan: <strong>&nbsp;${(h.reviews||0).toLocaleString('id-ID')}</strong></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="subtle" style="margin-bottom:4px">Alamat</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px">
+            ${h.addr ? h.addr : "<em>- belum diisi -</em>"}
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <a class="btn brand" href="${mapUrl(h)}" target="_blank" rel="noopener">Buka di Google Maps</a>
+        </div>
+      `;
+      byId('modal').showModal();
+    }
+
+    // ========= Wire up =========
+    const q = byId('q');
+    q.addEventListener('input', e=>{ state.q = e.target.value.trim(); render(); });
+    byId('area').addEventListener('change', e=>{ state.area = e.target.value; render(); });
+    byId('sort').addEventListener('change', e=>{ state.sort = e.target.value; render(); });
+    byId('minStars').addEventListener('change', e=>{ state.minStars = +e.target.value; render(); });
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      byId('year').textContent = new Date().getFullYear();
+      syncAreaOptions(); syncAmenities(); render();
+    });
+  </script>
+</body>
+</html>
